@@ -1,0 +1,19 @@
+4.1.2. - July 2019
+- Fix issue setting x-amz-pay-authtoken header for delegated requests
+
+4.1.1 - July 2019
+- Fixed EU and JP endpoints
+- Clean up README.md file
+- Add Open Source templates (CONTRIBUTING.md, NOTICE.txt, CODE_OF_CONDUCT.md)
+
+4.1.0 - April 2019
+- Breaking change: AmazonPay namespace renamed to AmazonPayV2 to prevent clash with the MWS Amazon Pay SDK
+- Add convenience functions for API calls: deliveryTrackers, instoreMerchantScan, instoreCharge, instoreRefund
+- Introduction of new config attribute: sandbox (boolean) and setSandbox function in Client
+- Config object private_key can now be a string representation of RSA key in addition to original filename support
+
+4.0.1 - March 2019
+- Initial support for critical data handling signature generation
+
+4.0.0 - April 2018
+- Initial private release of API v2 PHP Signing SDK

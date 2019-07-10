@@ -1,0 +1,36 @@
+{
+   "name": "amzn/amazon-pay-sdk-v2-php",
+   "type": "library",
+   "description": "Amazon Pay V2 SDK (PHP)",
+   "version": "4.1.2",
+   "keywords": [
+      "amazon",
+      "pay",
+      "payment",
+      "payments",
+      "pay with amazon",
+      "amazon payments",
+      "amazon pay"
+   ],
+   "homepage": "https://github.com/amzn/amazon-pay-sdk-v2-php",
+   "license": "Apache-2",
+   "authors": [
+      {
+         "name": "Amazon Pay V2 SDK",
+         "email": "amazon-pay-sdk@amazon.com"
+      }
+   ],
+   "autoload": {
+      "psr-4": {
+         "AmazonPayV2\\": "AmazonPayV2/"
+      }
+   },
+   "require": {
+      "ext-curl": "*",
+      "php": ">=5.5.0",
+      "phpseclib/phpseclib": "~2.0"
+   },
+   "require-dev": {
+      "phpunit/phpunit": "^4"
+   }
+}
