@@ -13,7 +13,7 @@
       "amazon pay"
    ],
    "homepage": "https://github.com/amzn/amazon-pay-sdk-v2-php",
-   "license": "Apache-2",
+   "license": "Apache OSL-2",
    "authors": [
       {
          "name": "Amazon Pay V2 SDK",
