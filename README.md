@@ -212,5 +212,5 @@ Example call to createSignature function with values:
     $pre_signed_headers['X-Amz-Pay-Region'] = 'JP';
 
     $AmazonPaySigner = new Client($amazonpay_config);
-    $signedInput = AmazonPaySigner->createSignature($method, $uri, $requestParameters, $pre_signed_headers, $payload, '20180326T203730Z');
+    $signedInput = AmazonPaySigner->createSignature($method, $url, $requestParameters, $pre_signed_headers, $payload, '20180326T203730Z');
 ```
