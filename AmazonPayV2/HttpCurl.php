@@ -2,21 +2,32 @@
 namespace AmazonPayV2;
 
 /* Class HttpCurl
- * Handles Curl POST function for all requests
+ * Handles Curl transmission for all requests
  */
 
 class HttpCurl
 {
     const MAX_ERROR_RETRY = 3;
 
-    private $header = false;
-    private $accessToken = null;
     private $curlResponseInfo = null;
-    private $headerArray = array();
+    private $requestId = null;
 
-    /* Takes user configuration array as input
-     * Takes configuration for API call or IPN config
-     */
+    private function header_callback($ch, $header_line)
+    {
+        $headers[] = $header_line;
+
+        foreach($headers as $part) {
+            $middle = explode(":", $part, 2);
+            if (isset($middle[1])) {
+                $key = strtolower(trim($middle[0]));
+                if ($key == 'x-amz-pay-request-id') {
+                    $this->requestId = trim($middle[1]);
+                }
+            }
+        }
+
+        return strlen($header_line);
+    }
 
     private function commonCurlParams($url)
     {
@@ -27,20 +38,22 @@ class HttpCurl
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_HEADERFUNCTION, array($this, 'header_callback'));
+
         return $ch;
     }
 
 
-    /* POST using curl for API V2 calls
+    /* Send using curl for API V2 calls
      */
-    private function httpPost($url, $payload, $postSignedHeaders)
+    private function httpSend($method, $url, $payload, $postSignedHeaders)
     {
         // Ensure we never send the "Expect: 100-continue" header by adding
         // an 'Expect:' header to the end of the headers
         $postSignedHeaders[] = 'Expect:';
 
         $ch = $this->commonCurlParams($url);
-        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $postSignedHeaders);
 
@@ -55,7 +68,7 @@ class HttpCurl
 
         $response = curl_exec($ch);
         if ($response === false) {
-            $error_msg = "Unable to post request, underlying exception of " . curl_error($ch);
+            $error_msg = "Unable to send request, underlying exception of " . curl_error($ch);
             curl_close($ch);
             throw new \Exception($error_msg);
         } else {
@@ -65,12 +78,13 @@ class HttpCurl
         return $response;
     }
 
-    /* invokePost takes the parameters and invokes the httpPost function to POST the parameters
-     * Exponential retries on error 500 and 503
-     * The response from the POST is an XML which is converted to Array
+    /* invokeCurl takes the parameters and invokes the httpSend function to transmit the parameters
+     * Exponential retries on error 429, 500, and 503
+     * Function returns an array of troubleshooting data, response from the request is in ['response']
      */
-    public function invokePost($url, $payload, $postSignedHeaders)
+    public function invokeCurl($method, $url, $payload, $postSignedHeaders)
     {
+        $curtime = microtime(true);
         $response = array();
         $statusCode = 200;
 
@@ -80,25 +94,32 @@ class HttpCurl
             $retries = 0;
             do {
                 try {
-                    $response = $this->httpPost($url, $payload, $postSignedHeaders);
+                    $response = $this->httpSend($method, $url, $payload, $postSignedHeaders);
                     $curlResponseInfo = $this->curlResponseInfo;
                     $statusCode = $curlResponseInfo["http_code"];
                     $response = array(
-                        'status'   => $statusCode,
-                        'url'      => $url,
-                        'headers'  => $postSignedHeaders,
-                        'request'  => $payload,
-                        'response' => $response
+                        'status'     => $statusCode,
+                        'method'     => $method,
+                        'url'        => $url,
+                        'headers'    => $postSignedHeaders,
+                        'request'    => $payload,
+                        'response'   => $response,
+                        'request_id' => $this->requestId,
+                        'retries'    => $retries,
+                        'duration'   => intval(round((microtime(true)-$curtime) * 1000))
                     );
 
                     $statusCode = $response['status'];
                     if ($statusCode == 200) {
                         $shouldRetry = false;
-                    } elseif ($statusCode == 500 || $statusCode == 503) {
+                    } elseif ($statusCode == 429 || $statusCode == 500 || $statusCode == 503) {
 
                         $shouldRetry = true;
                         if ($shouldRetry) {
                             $this->pauseOnRetry(++$retries, $response);
+                            if ($retries > self::MAX_ERROR_RETRY) {
+                                $shouldRetry = false;
+                            }
                         }
                     } else {
                         $shouldRetry = false;
@@ -129,9 +150,6 @@ class HttpCurl
             // 3rd delay is (4^3) * 100000 + 600000 = 6.4 + 0.6 second = 7.0 sec
             $delay = (int) (pow(4, $retries) * 100000) + 600000;
             usleep($delay);
-        } else {
-            throw new \Exception('Error Code: '. $response['status'] . ' - Maximum number of retry attempts - '
-              . $retries . " reached\n" . $response['response'] . "\n");
         }
     }
 

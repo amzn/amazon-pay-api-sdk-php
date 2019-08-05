@@ -1,4 +1,6 @@
 <?php
+    // See ClientInterface.php for public function documentation
+
     namespace AmazonPayV2;
 
     use phpseclib\Crypt\RSA;
@@ -8,7 +10,7 @@
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '4.1.3';
+        const SDK_VERSION = '4.2.0';
         const HASH_ALGORITHM = 'sha256';
         const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS';
 
@@ -314,14 +316,7 @@
             return $request_payload;
         }
 
-        /* getPostSignedHeaders convenience – Takes values for canonical request, creates a signature and  
-        * returns an array of headers to be sent 
-        * @param $http_request_method [String] 
-        * @param $request_uri [String] 
-        * @param $request_parameters [Array()]
-        * @param $request_payload [String]
-        */
-        public function getPostSignedHeaders($http_request_method, $request_uri, $request_parameters, $request_payload)
+        public function getPostSignedHeaders($http_request_method, $request_uri, $request_parameters, $request_payload, $other_presigned_headers = null)
         {
             $request_payload = $this->checkForPaymentCriticalDataAPI($request_uri, $http_request_method, $request_payload);
 
@@ -329,6 +324,17 @@
             $preSignedHeaders['accept'] = 'application/json';
             $preSignedHeaders['content-type'] = 'application/json';
             $preSignedHeaders['X-Amz-Pay-Region'] = $this->config['region'];
+
+            // Header x-amz-pay-idempotency-key is a special user-supplied header that must be pre-signed if used
+            if (isset($other_presigned_headers)) {
+                foreach ($other_presigned_headers as $key => $val) {
+                    if (strtolower($key) == 'x-amz-pay-idempotency-key') {
+                        if (isset($val) && ($val !== '')) {
+                            $preSignedHeaders['x-amz-pay-idempotency-key'] = $val;
+                        }
+                    }
+                }
+            }
 
             $timeStamp = $this->getFormattedTimestamp();
             $signature = $this->createSignature($http_request_method, $request_uri, $request_parameters, $preSignedHeaders, $request_payload, $timeStamp);
@@ -338,7 +344,8 @@
             $headers['X-Amz-Pay-Date'] = $timeStamp;
             $headers['X-Amz-Pay-Host'] = $this->getHost($request_uri);
             $signedHeaders = "SignedHeaders=" . $this->getCanonicalHeadersNames($headers) . ", Signature=" . $signature;
-            
+
+            // Do not add x-amz-pay-idempotency-key header here, as user-supplied headers get added later
             $headerArray = array(
                 'accept' => $this->stringFromArray($headers['accept']),
                 'content-type' => $this->stringFromArray($headers['content-type']),
@@ -357,24 +364,10 @@
             return $queryParameters;
         }
 
-        /* createSignature convenience – Takes values for canonical request sorts and parses it and  
-        * returns a signature for the request being sent 
-        * @param $http_request_method [String] 
-        * @param $request_uri [String] 
-        * @param $request_parameters [Array()]
-        * @param $pre_signed_headers [Array()]
-        * @param $request_payload [String]
-        * @param $timeStamp [String]
-        */
         public function createSignature($http_request_method, $request_uri, $request_parameters, $pre_signed_headers, $request_payload, $timeStamp)
         {
-            $rsa = new RSA();
-            $rsa->setHash(self::HASH_ALGORITHM);
-            $rsa->setMGFHash(self::HASH_ALGORITHM);
-            $rsa->setSaltLength(20);
+            $rsa = $this->setupRSA();
 
-            $private_key = $this->config['private_key'];
-            
             $pre_signed_headers['X-Amz-Pay-Date'] = $timeStamp;
             $pre_signed_headers['X-Amz-Pay-Host'] = $this->getHost($request_uri);
 
@@ -395,24 +388,48 @@
 
             $hashedCanonicalRequest = self::AMAZON_SIGNATURE_ALGORITHM . "\n" . $this->hexAndHash($canonicalRequest);
 
-            if (strpos($private_key, 'BEGIN RSA PRIVATE KEY') === false) {
-                $rsa->loadKey(file_get_contents($private_key));
-            } else {
-                $rsa->loadKey($private_key);
-            }
             $signature = base64_encode($rsa->sign($hashedCanonicalRequest));
             
             return $signature;
         }
 
+        private function setupRSA() {
+            $rsa = new RSA();
+            $rsa->setHash(self::HASH_ALGORITHM);
+            $rsa->setMGFHash(self::HASH_ALGORITHM);
+            $rsa->setSaltLength(20);
 
-        /* Signs and executes REST API call POST operation for arbitrary Amazon Pay v2 API
-         *
-         * @param urlFragment - [String] (e.g. 'v1/deliveryTrackers')
-         * @param payload - [String in JSON format] or [array]
-         * @optional authToken - [String]
-         */
-        public function apiPost($urlFragment, $payload, $authToken = null) {
+            $key_spec = $this->config['private_key'];
+
+            if (strpos($key_spec, 'BEGIN RSA PRIVATE KEY') === false) {
+                $contents = file_get_contents($key_spec);
+                if ($contents === false) {
+                    throw new \Exception('Unable to load file: ' . $key_spec);
+                }
+                $rsa->loadKey($contents);
+            } else {
+                $rsa->loadKey($key_spec);
+            }
+
+            return $rsa;
+        }
+
+        public function testPrivateKeyIntegrity() {
+            echo "Testing private key: ";
+
+            $rsa = $this->setupRSA();
+
+            for ($i = 0; $i < 100; $i++) {
+                echo ($i+1) . " ";
+                $rsa->sign("TESTING PRIVATE KEY");
+            }
+            echo "[Passed]\n";
+
+            return true;
+        }
+
+
+        public function apiCall($method, $urlFragment, $payload, $headers = null) {
             if (is_array($payload)) {
                 $payload = json_encode($payload);
             }
@@ -420,13 +437,18 @@
             $url = $this->createServiceUrl() . $urlFragment;
             $requestParameters = array();
 
-            $postSignedHeaders = $this->getPostSignedHeaders('POST', $url, $requestParameters, $payload);
-            if (isset($authToken)) {
-                $postSignedHeaders[] = 'x-amz-pay-authtoken:' . $authToken;
+            $postSignedHeaders = $this->getPostSignedHeaders($method, $url, $requestParameters, $payload, $headers);
+            if (isset($headers)) {
+                if (!is_array($headers)) {
+                    throw new \Exception('headers must be a key-value array; e.g. array(\'x-amz-pay-authtoken\' => \'abcd1234xyzIJK\')');
+                }
+                foreach ($headers as $key => $value) {
+                    $postSignedHeaders[] = $key . ':' . $value;
+                }
             }
 
             $httpCurlRequest = new HttpCurl();
-            $response = $httpCurlRequest->invokePost($url, $payload, $postSignedHeaders);
+            $response = $httpCurlRequest->invokeCurl($method, $url, $payload, $postSignedHeaders);
             return $response;
         }
 
@@ -443,49 +465,108 @@
             }
         }
 
+        // ----------------------------------- DELIVERY NOTIFICATIONS API -----------------------------------
 
-        /* deliveryTrackers API call - Provides shipment tracking information for Alexa
-         *
-         * @param payload - [String in JSON format] or [array]
-         * @optional authToken - [String]
-         */
-        public function deliveryTrackers($payload, $authToken = null)
+
+        public function deliveryTrackers($payload, $headers = null)
         {
             // Current implementation on deliveryTrackers API does not support the use of auth token
-            return $this->apiPost('v1/deliveryTrackers', $payload, $authToken);
+            return $this->apiCall('POST', 'v1/deliveryTrackers', $payload, $headers);
         }
 
 
-        /* In-Store merchantScan API call - Generates Charge Permission ID from Amazon App's Amazon Pay QR Code
-         *
-         * @param payload - [String in JSON format] or [array]
-         * @optional authToken - [String]
-         */
-        public function instoreMerchantScan($payload, $authToken = null)
+        // ----------------------------------- IN-STORE API -----------------------------------
+
+
+        public function instoreMerchantScan($payload, $headers = null)
         {
-            return $this->apiPost('in-store/v1/merchantScan', $payload, $authToken);
+            return $this->apiCall('POST', 'in-store/v1/merchantScan', $payload, $headers);
         }
 
 
-        /* In-Store charge API call - Performs Charge on a Charge Permission ID
-         *
-         * @param payload - [String in JSON format] or [array]
-         * @optional authToken - [String]
-         */
-        public function instoreCharge($payload, $authToken = null)
+        public function instoreCharge($payload, $headers = null)
         {
-            return $this->apiPost('in-store/v1/charge', $payload, $authToken);
+            return $this->apiCall('POST', 'in-store/v1/charge', $payload, $headers);
         }
 
 
-        /* In-Store refund API call - Peforms Refund on a Charge ID                   
-         *
-         * @param payload - [String in JSON format] or [array]
-         * @optional authToken - [String]
-         */
-        public function instoreRefund($payload, $authToken = null)
+        public function instoreRefund($payload, $headers = null)
         {
-            return $this->apiPost('in-store/v1/refund', $payload, $authToken);
+            return $this->apiCall('POST', 'in-store/v1/refund', $payload, $headers);
+        }
+
+
+        // ----------------------------------- API V2 -----------------------------------
+
+        public function createCheckoutSession($payload, $headers)
+        {
+            return $this->apiCall('POST', 'v1/checkoutSessions', $payload, $headers);
+        }
+
+
+        public function getCheckoutSession($checkoutSessionId, $headers = null)
+        {
+            return $this->apiCall('GET', 'v1/checkoutSessions/' . $checkoutSessionId, null, $headers);
+        }
+
+
+        public function updateCheckoutSession($checkoutSessionId, $payload, $headers = null)
+        {
+            return $this->apiCall('PATCH', 'v1/checkoutSessions/' . $checkoutSessionId, $payload, $headers);
+        }
+
+
+        public function getChargePermission($chargePermissionId, $headers = null)
+        {
+            return $this->apiCall('GET', 'v1/chargePermissions/' . $chargePermissionId, null, $headers);
+        }
+
+
+        public function updateChargePermission($chargePermissionId, $payload, $headers = null)
+        {
+            return $this->apiCall('PATCH', 'v1/chargePermissions/' . $chargePermissionId, $payload, $headers);
+        }
+
+
+        public function closeChargePermission($chargePermissionId, $payload, $headers = null)
+        {
+            return $this->apiCall('DELETE', 'v1/chargePermissions/' . $chargePermissionId  . '/close', $payload, $headers);
+        }
+
+
+        public function createCharge($payload, $headers)
+        {
+            return $this->apiCall('POST', 'v1/charges', $payload, $headers);
+        }
+
+
+        public function getCharge($chargeId, $headers = null)
+        {
+            return $this->apiCall('GET', 'v1/charges/' . $chargeId, null, $headers);
+        }
+
+
+        public function captureCharge($chargeId, $payload, $headers)
+        {
+            return $this->apiCall('POST', 'v1/charges/' . $chargeId  . '/capture', $payload, $headers);
+        }
+
+
+        public function cancelCharge($chargeId, $payload, $headers = null)
+        {
+            return $this->apiCall('DELETE', 'v1/charges/' . $chargeId  . '/cancel', $payload, $headers);
+        }
+
+
+        public function createRefund($payload, $headers)
+        {
+            return $this->apiCall('POST', 'v1/refunds', $payload, $headers);
+        }
+
+
+        public function getRefund($refundId, $headers = null)
+        {
+            return $this->apiCall('GET', 'v1/refunds/' . $refundId, null, $headers);
         }
 
     }
