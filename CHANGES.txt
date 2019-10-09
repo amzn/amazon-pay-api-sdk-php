@@ -1,3 +1,7 @@
+4.3.0 - October 2019
+- Added support for passing query parameters in apiCall() function
+- Added getAuthorizationToken() function, see API V2 Delegated Authorization Guide for more information
+
 4.2.0 - August 2019
 - Initial support for APIv2
 

@@ -72,7 +72,14 @@ Please note that your merchant account must be whitelisted to use the [Delivery 
 
 * **deliveryTrackers**($payload, $headers = null) &#8594; POST to "v1/deliveryTrackers"
 
+## Authorization Tokens API
+Please note that your solution provider account must have a pre-existing relationship (valid and active API V1-style MWS authorization token) with the merchant account in order to use this function.
+
+* **getAuthorizationToken**($mwsAuthToken, $merchantId, $headers = null) &#8594; GET to "v1/authorizationTokens/$mwsAuthToken?merchantId=$merchantId"
+
 ## API V2
+[API V2 Integration Guide](https://amazonpaycheckoutintegrationguide.s3.amazonaws.com/amazon-pay-api-v2/introduction.html)
+
 The $headers field is not optional for create/POST calls below because it requires, at a minimum, the x-amz-pay-idempotency-key header:
 
 ```php
@@ -191,7 +198,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
 
     $amazonpay_config = array(
         'public_key_id' => 'MY_PUBLIC_KEY_ID',
-        'private_key'   => 'my_private_key.txt',
+        'private_key'   => 'keys/private.pem',
         'region'        => 'US',
         'sandbox'       => false
     );
@@ -220,7 +227,47 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
     ?>
 ```
 
-## API V2 - Create Checkout Session
+## API V2 - Create Checkout Session (AJAX service example)
+
+```php
+    <?php
+    session_start();
+
+    include 'vendor/autoload.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'MY_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'US',
+        'sandbox'       => true
+    );
+    $payload = array(
+        'webCheckoutDetails' => array(
+            'checkoutReviewReturnUrl' => 'https://localhost/store/checkout_review',
+            'checkoutResultReturnUrl' => 'https://localhost/store/checkout_result'
+        ),
+        'storeId' => 'amzn1.application-oa2-client.000000000000000000000000000000000'
+    );
+    $headers = array('x-amz-pay-Idempotency-Key' => uniqid());
+    try {
+        $client = new AmazonPayV2\Client($amazonpay_config);
+        $result = $client->createCheckoutSession($payload, $headers);
+
+        header("Content-type:application/json; charset=utf-8");
+        echo $result['response'];
+        if ($result['status'] !== 201) {
+            http_response_code(500);
+        }
+
+    } catch (\Exception $e) {
+        echo $se;
+        http_response_code(500);
+    }
+    ?>
+```
+
+
+## API V2 - Create Checkout Session (standalone script example)
 
 ```php
     <?php
@@ -228,7 +275,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
 
     $amazonpay_config = array(
         'public_key_id' => 'MY_PUBLIC_KEY_ID',
-        'private_key'   => 'my_private_key.txt',
+        'private_key'   => 'keys/private.pem',
         'region'        => 'US',
         'sandbox'       => true
     );
@@ -267,7 +314,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
 
     $amazonpay_config = array(
         'public_key_id' => 'MY_PUBLIC_KEY_ID',
-        'private_key'   => 'my_private_key.txt',
+        'private_key'   => 'keys/private.pem',
         'region'        => 'US',
         'sandbox'       => true
     );
@@ -317,7 +364,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
 
     $amazonpay_config = array(
         'public_key_id' => 'MY_PUBLIC_KEY_ID',
-        'private_key'   => 'my_private_key.txt',
+        'private_key'   => 'keys/private.pem',
         'region'        => 'US',
         'sandbox'       => true
     );
@@ -365,7 +412,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
 
     $amazonpay_config = array(
         'public_key_id' => 'MY_PUBLIC_KEY_ID',
-        'private_key'   => 'my_private_key.txt',
+        'private_key'   => 'keys/private.pem',
         'region'        => 'US',
         'sandbox'       => true
     );

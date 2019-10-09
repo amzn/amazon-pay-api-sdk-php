@@ -10,7 +10,7 @@
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '4.2.0';
+        const SDK_VERSION = '4.3.0';
         const HASH_ALGORITHM = 'sha256';
         const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS';
 
@@ -154,7 +154,6 @@
         private function createCanonicalQuery($requestParameters)
         {
             $sortedRequestParameters = $this->sortCanonicalArray($requestParameters);
-
             return $this->getParametersAsString($sortedRequestParameters);
         }
 
@@ -388,9 +387,12 @@
 
             $hashedCanonicalRequest = self::AMAZON_SIGNATURE_ALGORITHM . "\n" . $this->hexAndHash($canonicalRequest);
 
-            $signature = base64_encode($rsa->sign($hashedCanonicalRequest));
+            $signature = $rsa->sign($hashedCanonicalRequest);
+            if ($signature === false) {
+                throw new \Exception('Unable to sign request, is your RSA private key valid?');
+            }
             
-            return $signature;
+            return base64_encode($signature);
         }
 
         private function setupRSA() {
@@ -401,7 +403,7 @@
 
             $key_spec = $this->config['private_key'];
 
-            if (strpos($key_spec, 'BEGIN RSA PRIVATE KEY') === false) {
+            if ((strpos($key_spec, 'BEGIN RSA PRIVATE KEY') === false) && (strpos($key_spec, 'BEGIN PRIVATE KEY') === false)) {
                 $contents = file_get_contents($key_spec);
                 if ($contents === false) {
                     throw new \Exception('Unable to load file: ' . $key_spec);
@@ -429,13 +431,21 @@
         }
 
 
-        public function apiCall($method, $urlFragment, $payload, $headers = null) {
+        public function apiCall($method, $urlFragment, $payload, $headers = null, $queryParams = null) {
             if (is_array($payload)) {
                 $payload = json_encode($payload);
             }
 
             $url = $this->createServiceUrl() . $urlFragment;
-            $requestParameters = array();
+            if (isset($queryParams)) {
+                if (!is_array($queryParams)) {
+                    throw new \Exception('queryParameters must be a key-value array; e.g. array(\'accountId\' => \'ABCD1234XYZIJK\')');
+                }
+                $url = $url . '?' . $this->createCanonicalQuery($queryParams);
+                $requestParameters = $queryParams;
+            } else {
+                $requestParameters = array();
+            }
 
             $postSignedHeaders = $this->getPostSignedHeaders($method, $url, $requestParameters, $payload, $headers);
             if (isset($headers)) {
@@ -472,6 +482,16 @@
         {
             // Current implementation on deliveryTrackers API does not support the use of auth token
             return $this->apiCall('POST', 'v1/deliveryTrackers', $payload, $headers);
+        }
+
+
+        // ----------------------------------- AUTHORIZATION TOKENS API -----------------------------------
+
+        public function getAuthorizationToken($mwsAuthToken, $merchantId, $headers = null)
+        {
+
+            $queryParams =  array('merchantId' => $merchantId);
+            return $this->apiCall('GET', 'v1/authorizationTokens/' . $mwsAuthToken, null, $headers, $queryParams);
         }
 
 
