@@ -41,7 +41,7 @@ You will need to generate your own public/private key pair to make API calls wit
 
 The first command above generates a private key and the second line uses the private key to generate a public key.
 
-To associate the key with your account, send an email to amazon-pay-delivery-notification@amazon.com that includes (1) your *public* key and (2) your Merchant ID.  Do not send your private key to Amazon (or anyone else) under any circumstance!
+To associate the key with your account, send an email to amazon-pay-delivery-notifications@amazon.com that includes (1) your *public* key and (2) your Merchant ID.  Do not send your private key to Amazon (or anyone else) under any circumstance!
 
 In your Seller Central account, within 1-2 business days, the account administrator will receive a message that includes the public_key_id you will need to use the SDK.
 
