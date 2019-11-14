@@ -19,7 +19,7 @@ Use composer to install the latest release of the V2 SDK and its dependencies:
     composer require amzn/amazon-pay-sdk-v2-php
 ```
 
-Verify the instllation with the following test script:
+Verify the installation with the following test script:
 
 ```php
     <?php
