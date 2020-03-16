@@ -333,7 +333,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
         $result = $client->getCheckoutSession($checkoutSessionId);
         if ($result['status'] === 200) {
             $response = json_decode($result['response'], true);
-            $checkoutSessionState = $response['statusDetails']['state'];
+            $checkoutSessionState = $response['statusDetail']['state'];
             $chargeId = $response['chargeId'];
             $chargePermissionId = $response['chargePermissionId'];
 
@@ -378,7 +378,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
     );
 
     $payload = array(
-       'paymentDetails' => array(
+       'paymentDetail' => array(
             'paymentIntent' => 'Authorize',
             'canHandlePendingAuthorization' => false,
             'chargeAmount' => array(
