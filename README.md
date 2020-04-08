@@ -19,7 +19,7 @@ Use composer to install the latest release of the V2 SDK and its dependencies:
     composer require amzn/amazon-pay-sdk-v2-php
 ```
 
-Verify the instllation with the following test script:
+Verify the installation with the following test script:
 
 ```php
     <?php
@@ -32,11 +32,20 @@ Verify the instllation with the following test script:
 
 MWS access keys, MWS secret keys, and MWS authorization tokens from previous MWS or Amazon Pay V1 integrations cannot be used with this SDK.
 
-You will need to generate your own public/private key pair to make API calls with this SDK.  This can be done using openssl commands:
+You will need to generate your own public/private key pair to make API calls with this SDK.
+
+In Windows 10 this can be done with ssh-keygen commands:
 
 ```
-    openssl genrsa -out private.txt 2048
-    openssl rsa -in private.txt -pubout > public.txt
+ssh-keygen -t rsa -b 2048 -f private.pem
+ssh-keygen -f private.pem -e -m PKCS8 > public.pub
+```
+
+In Linux or macOS this can be done using openssl commands:
+
+```
+openssl genrsa -out private.pem 2048
+openssl rsa -in private.pem -pubout > public.pub
 ```
 
 The first command above generates a private key and the second line uses the private key to generate a public key.
@@ -204,7 +213,6 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
     );
     $payload = array(
         'amazonOrderReferenceId' => 'P01-0000000-0000000',
-        'externalOrderId' => 'merchantGivenId',
         'deliveryDetails' => array(array(
             'trackingNumber' => '01234567890',
             'carrierCode' => 'FEDEX'
@@ -242,7 +250,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
         'sandbox'       => true
     );
     $payload = array(
-        'webCheckoutDetails' => array(
+        'webCheckoutDetail' => array(
             'checkoutReviewReturnUrl' => 'https://localhost/store/checkout_review',
             'checkoutResultReturnUrl' => 'https://localhost/store/checkout_result'
         ),
@@ -281,7 +289,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
         'sandbox'       => true
     );
     $payload = array(
-        'webCheckoutDetails' => array(
+        'webCheckoutDetail' => array(
             'checkoutReviewReturnUrl' => 'https://localhost/store/checkout_review',
             'checkoutResultReturnUrl' => 'https://localhost/store/checkout_result'
         ),
@@ -392,7 +400,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
         $result = $client->updateCheckoutSession($checkoutSessionId, $payload);
         if ($result['status'] === 200) {
             $response = json_decode($result['response'], true);
-            $amazonPayRedirectUrl = $response['webCheckoutDetails']['amazonPayRedirectUrl'];
+            $amazonPayRedirectUrl = $response['webCheckoutDetail']['amazonPayRedirectUrl'];
             echo "amazonPayRedirectUrl=$amazonPayRedirectUrl\n";
         } else {
             // check the error
@@ -458,12 +466,12 @@ This SDK provides the ability to help you manually sign your API requests if you
 Example call to getPostSignedHeaders function with values:
 
 ```php
-    /* 	getPostSignedHeaders convenience – Takes values for canonical request sorts and parses it and  
-     *	returns a signature for the request being sent 
-     * 	@param $http_request_method [String] 
-     *	@param $request_uri [String] 
-     *	@param $request_parameters [array()]
-     *	@param $request_payload [string]
+    /*  getPostSignedHeaders convenience – Takes values for canonical request sorts and parses it and  
+     *  returns a signature for the request being sent 
+     *  @param $http_request_method [String] 
+     *  @param $request_uri [String] 
+     *  @param $request_parameters [array()]
+     *  @param $request_payload [string]
      */
 ```
 
@@ -509,13 +517,13 @@ Example call to createSignature function with values:
 (This will only be used if you don't use getPostSignedHeaders and want to create your own custom headers.)
 
 ```php
-  /* 	createSignature convenience – Takes values for canonical request sorts and parses it and  
-   *	returns a signature for the request being sent 
-   * 	@param $http_request_method [String] 
-   *	@param $request_uri [String] 
-   *	@param $request_parameters [Array()]
-   *	@param $pre_signed_headers [Array()]
-   *	@param $request_payload [String]
+  /*    createSignature convenience – Takes values for canonical request sorts and parses it and  
+   *    returns a signature for the request being sent 
+   *    @param $http_request_method [String] 
+   *    @param $request_uri [String] 
+   *    @param $request_parameters [Array()]
+   *    @param $pre_signed_headers [Array()]
+   *    @param $request_payload [String]
    *    @param $timeStamp [String]
    */
 
