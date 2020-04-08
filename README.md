@@ -268,7 +268,8 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
         }
 
     } catch (\Exception $e) {
-        echo $e;
+        // handle the exception
+        echo $e . "\n";
         http_response_code(500);
     }
     ?>
