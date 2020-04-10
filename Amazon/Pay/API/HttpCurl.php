@@ -1,5 +1,5 @@
 <?php
-namespace AmazonPayV2;
+namespace Amazon\Pay\API;
 
 /* Class HttpCurl
  * Handles Curl transmission for all requests
@@ -44,7 +44,7 @@ class HttpCurl
     }
 
 
-    /* Send using curl for API V2 calls
+    /* Send using curl
      */
     private function httpSend($method, $url, $payload, $postSignedHeaders)
     {
@@ -154,3 +154,5 @@ class HttpCurl
     }
 
 }
+
+?>

@@ -1,7 +1,7 @@
 <?php
     // See ClientInterface.php for public function documentation
 
-    namespace AmazonPayV2;
+    namespace Amazon\Pay\API;
 
     use phpseclib\Crypt\RSA;
 
@@ -10,9 +10,10 @@
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '4.3.0';
+        const SDK_VERSION = '1.0.0';
         const HASH_ALGORITHM = 'sha256';
         const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS';
+        const API_VERSION = 'v1';
 
         private $config = array();
 
@@ -290,7 +291,7 @@
         /* Protected because of PSP module usaged */
         protected function constructUserAgentHeader()
         {
-            return 'amazon-pay-sdk-php/' . self::SDK_VERSION . ' ('
+            return 'amazon-pay-api-sdk-php/' . self::SDK_VERSION . ' ('
                 . 'PHP/' . phpversion() . '; '
                 . php_uname('s') . '/' . php_uname('m') . '/' . php_uname('r') . ')';
         }
@@ -302,7 +303,7 @@
         @param $request_payload [String]
         */
         private function checkForPaymentCriticalDataAPI($request_uri, $http_request_method, $request_payload) {
-            $paymentCriticalDataAPIs = array('/live/account-management/v1/accounts', '/sandbox/account-management/v1/accounts');
+            $paymentCriticalDataAPIs = array('/live/account-management/' . self::API_VERSION . '/accounts', '/sandbox/account-management/' . self::API_VERSION . '/accounts');
             $allowedHttpMethods = array('POST', 'PUT', 'PATCH');
 
             // For APIs handling payment critical data, the payload shouldn't be
@@ -481,7 +482,7 @@
         public function deliveryTrackers($payload, $headers = null)
         {
             // Current implementation on deliveryTrackers API does not support the use of auth token
-            return $this->apiCall('POST', 'v1/deliveryTrackers', $payload, $headers);
+            return $this->apiCall('POST', self::API_VERSION . '/deliveryTrackers', $payload, $headers);
         }
 
 
@@ -491,7 +492,7 @@
         {
 
             $queryParams =  array('merchantId' => $merchantId);
-            return $this->apiCall('GET', 'v1/authorizationTokens/' . $mwsAuthToken, null, $headers, $queryParams);
+            return $this->apiCall('GET', self::API_VERSION . '/authorizationTokens/' . $mwsAuthToken, null, $headers, $queryParams);
         }
 
 
@@ -500,93 +501,93 @@
 
         public function instoreMerchantScan($payload, $headers = null)
         {
-            return $this->apiCall('POST', 'in-store/v1/merchantScan', $payload, $headers);
+            return $this->apiCall('POST', 'in-store/' . self::API_VERSION . '/merchantScan', $payload, $headers);
         }
 
 
         public function instoreCharge($payload, $headers = null)
         {
-            return $this->apiCall('POST', 'in-store/v1/charge', $payload, $headers);
+            return $this->apiCall('POST', 'in-store/' . self::API_VERSION . '/charge', $payload, $headers);
         }
 
 
         public function instoreRefund($payload, $headers = null)
         {
-            return $this->apiCall('POST', 'in-store/v1/refund', $payload, $headers);
+            return $this->apiCall('POST', 'in-store/' . self::API_VERSION . '/refund', $payload, $headers);
         }
 
 
-        // ----------------------------------- API V2 -----------------------------------
+        // ----------------------------------- Amazon Checkout v2 API -----------------------------------
 
         public function createCheckoutSession($payload, $headers)
         {
-            return $this->apiCall('POST', 'v1/checkoutSessions', $payload, $headers);
+            return $this->apiCall('POST', self::API_VERSION . '/checkoutSessions', $payload, $headers);
         }
 
 
         public function getCheckoutSession($checkoutSessionId, $headers = null)
         {
-            return $this->apiCall('GET', 'v1/checkoutSessions/' . $checkoutSessionId, null, $headers);
+            return $this->apiCall('GET', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId, null, $headers);
         }
 
 
         public function updateCheckoutSession($checkoutSessionId, $payload, $headers = null)
         {
-            return $this->apiCall('PATCH', 'v1/checkoutSessions/' . $checkoutSessionId, $payload, $headers);
+            return $this->apiCall('PATCH', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId, $payload, $headers);
         }
 
 
         public function getChargePermission($chargePermissionId, $headers = null)
         {
-            return $this->apiCall('GET', 'v1/chargePermissions/' . $chargePermissionId, null, $headers);
+            return $this->apiCall('GET', self::API_VERSION . '/chargePermissions/' . $chargePermissionId, null, $headers);
         }
 
 
         public function updateChargePermission($chargePermissionId, $payload, $headers = null)
         {
-            return $this->apiCall('PATCH', 'v1/chargePermissions/' . $chargePermissionId, $payload, $headers);
+            return $this->apiCall('PATCH', self::API_VERSION . '/chargePermissions/' . $chargePermissionId, $payload, $headers);
         }
 
 
         public function closeChargePermission($chargePermissionId, $payload, $headers = null)
         {
-            return $this->apiCall('DELETE', 'v1/chargePermissions/' . $chargePermissionId  . '/close', $payload, $headers);
+            return $this->apiCall('DELETE', self::API_VERSION . '/chargePermissions/' . $chargePermissionId  . '/close', $payload, $headers);
         }
 
 
         public function createCharge($payload, $headers)
         {
-            return $this->apiCall('POST', 'v1/charges', $payload, $headers);
+            return $this->apiCall('POST', self::API_VERSION . '/charges', $payload, $headers);
         }
 
 
         public function getCharge($chargeId, $headers = null)
         {
-            return $this->apiCall('GET', 'v1/charges/' . $chargeId, null, $headers);
+            return $this->apiCall('GET', self::API_VERSION . '/charges/' . $chargeId, null, $headers);
         }
 
 
         public function captureCharge($chargeId, $payload, $headers)
         {
-            return $this->apiCall('POST', 'v1/charges/' . $chargeId  . '/capture', $payload, $headers);
+            return $this->apiCall('POST', self::API_VERSION . '/charges/' . $chargeId  . '/capture', $payload, $headers);
         }
 
 
         public function cancelCharge($chargeId, $payload, $headers = null)
         {
-            return $this->apiCall('DELETE', 'v1/charges/' . $chargeId  . '/cancel', $payload, $headers);
+            return $this->apiCall('DELETE', self::API_VERSION . '/charges/' . $chargeId  . '/cancel', $payload, $headers);
         }
 
 
         public function createRefund($payload, $headers)
         {
-            return $this->apiCall('POST', 'v1/refunds', $payload, $headers);
+            return $this->apiCall('POST', self::API_VERSION . '/refunds', $payload, $headers);
         }
 
 
         public function getRefund($refundId, $headers = null)
         {
-            return $this->apiCall('GET', 'v1/refunds/' . $refundId, null, $headers);
+            return $this->apiCall('GET', self::API_VERSION . '/refunds/' . $refundId, null, $headers);
         }
 
     }

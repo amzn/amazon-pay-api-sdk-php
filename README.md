@@ -1,9 +1,9 @@
-# Amazon Pay SDK-V2 (PHP)
-Amazon Pay API V2 Integration
+# Amazon Pay API SDK (PHP)
+Amazon Pay Integration
 
-Please note the Amazon Pay V2 SDK can only be used for V2-specific API calls (e.g., Alexa Delivery Trackers, In-Store API, API V2, etc.)
+Please note that the Amazon Pay API SDK can only be used for API calls to the pay-api.amazon.com|eu|jp endpoint.
 
-If you are developing an integration using the original [Amazon Pay API Reference Guide](https://developer.amazon.com/docs/amazon-pay-api/intro.html), then you will need to use the original [Amazon Pay SDK (PHP)](https://github.com/amzn/amazon-pay-sdk-php).
+If you need to make an Amazon Pay API call that uses the mws.amazonservices.com|jp or mws-eu.amazonservices.com endpoint, then you will need to use the original [Amazon Pay SDK (PHP)](https://github.com/amzn/amazon-pay-sdk-php).
 
 ## Requirements
 
@@ -13,10 +13,10 @@ If you are developing an integration using the original [Amazon Pay API Referenc
 
 ## SDK Installation
 
-Use composer to install the latest release of the V2 SDK and its dependencies:
+Use composer to install the latest release of the SDK and its dependencies:
 
 ```
-    composer require amzn/amazon-pay-sdk-v2-php
+    composer require amzn/amazon-pay-api-sdk-php
 ```
 
 Verify the installation with the following test script:
@@ -24,13 +24,13 @@ Verify the installation with the following test script:
 ```php
     <?php
         include 'vendor/autoload.php';
-        echo "SDK_VERSION=" . AmazonPayV2\Client::SDK_VERSION . "\n";
+        echo "SDK_VERSION=" . Amazon\Pay\API\Client::SDK_VERSION . "\n";
     ?>
 ```
 
 ## Public and Private Keys
 
-MWS access keys, MWS secret keys, and MWS authorization tokens from previous MWS or Amazon Pay V1 integrations cannot be used with this SDK.
+MWS access keys, MWS secret keys, and MWS authorization tokens from previous MWS integrations cannot be used with this SDK.
 
 You will need to generate your own public/private key pair to make API calls with this SDK.
 
@@ -50,13 +50,13 @@ openssl rsa -in private.pem -pubout > public.pub
 
 The first command above generates a private key and the second line uses the private key to generate a public key.
 
-To associate the key with your account, send an email to amazon-pay-delivery-notifications@amazon.com that includes (1) your *public* key and (2) your Merchant ID.  Do not send your private key to Amazon (or anyone else) under any circumstance!
+To associate the key with your account, send an email to your Amazon Pay account manager, or to Amazon Pay merchant support, including (1) your *public* key and (2) your Merchant ID.  Do not send your private key to Amazon (or anyone else) under any circumstance!
 
 In your Seller Central account, within 1-2 business days, the account administrator will receive a message that includes the public_key_id you will need to use the SDK.
 
 ## Namespace
 
-Namespace for this package is AmazonPayV2 so that there are no conflicts with the original Amazon Pay MWS SDK's that use the AmazonPay namespace.
+Namespace for this package is Amazon\Pay\API so that there are no conflicts with the original Amazon Pay MWS SDK's that use the AmazonPay namespace.
 
 ## Configuration Array
 
@@ -69,6 +69,12 @@ Namespace for this package is AmazonPayV2 so that there are no conflicts with th
     );
 ```
 
+# Versioning
+
+The pay-api.amazon.com|eu|jp endpoint uses versioning to allow future updates.  The major version of this SDK will stay aligned with the API version of the endpoint.
+
+If you have downloaded version 1.x.y of this SDK, $version in below examples would be "v1".  2.x.y would be "v2", etc. 
+
 # Convenience Functions (Overview)
 
 Make use of the built-in convenience functions to easily make API calls.  Scroll down further to see example code snippets.
@@ -79,15 +85,15 @@ In the event of request throttling, the HTTPS call will be attempted up to three
 ## Alexa Delivery Trackers API
 Please note that your merchant account must be whitelisted to use the [Delivery Trackers API](https://developer.amazon.com/docs/amazon-pay-onetime/delivery-order-notifications.html).
 
-* **deliveryTrackers**($payload, $headers = null) &#8594; POST to "v1/deliveryTrackers"
+* **deliveryTrackers**($payload, $headers = null) &#8594; POST to "$version/deliveryTrackers"
 
 ## Authorization Tokens API
-Please note that your solution provider account must have a pre-existing relationship (valid and active API V1-style MWS authorization token) with the merchant account in order to use this function.
+Please note that your solution provider account must have a pre-existing relationship (valid and active MWS authorization token) with the merchant account in order to use this function.
 
-* **getAuthorizationToken**($mwsAuthToken, $merchantId, $headers = null) &#8594; GET to "v1/authorizationTokens/$mwsAuthToken?merchantId=$merchantId"
+* **getAuthorizationToken**($mwsAuthToken, $merchantId, $headers = null) &#8594; GET to "$version/authorizationTokens/$mwsAuthToken?merchantId=$merchantId"
 
-## API V2
-[API V2 Integration Guide](https://amazonpaycheckoutintegrationguide.s3.amazonaws.com/amazon-pay-api-v2/introduction.html)
+## Amazon Checkout v2 API
+[API Integration Guide](https://amazonpaycheckoutintegrationguide.s3.amazonaws.com/amazon-pay-api-v2/introduction.html)
 
 The $headers field is not optional for create/POST calls below because it requires, at a minimum, the x-amz-pay-idempotency-key header:
 
@@ -95,32 +101,32 @@ The $headers field is not optional for create/POST calls below because it requir
     $headers = array('x-amz-pay-idempotency-key' => uniqid());
 ```
 
-### API V2 CheckoutSession object
-* **createCheckoutSession**($payload, $headers) &#8594; POST to "v1/checkoutSessions"
-* **getCheckoutSession**($checkoutSessionId, $headers = null) &#8594; GET to "v1/checkoutSessions/$checkoutSessionId"
-* **updateCheckoutSession**($checkoutSessionId, $payload, $headers = null) &#8594; PATCH to "v1/checkoutSessions/$checkoutSessionId"
+### Amazon Checkout v2 CheckoutSession object
+* **createCheckoutSession**($payload, $headers) &#8594; POST to "$version/checkoutSessions"
+* **getCheckoutSession**($checkoutSessionId, $headers = null) &#8594; GET to "$version/checkoutSessions/$checkoutSessionId"
+* **updateCheckoutSession**($checkoutSessionId, $payload, $headers = null) &#8594; PATCH to "$version/checkoutSessions/$checkoutSessionId"
 
-### API V2 ChargePermission object
-* **getChargePermission**($chargePermissionId, $headers = null) &#8594; GET to "v1/chargePermissions/$chargePermissionId"
-* **updateChargePermission**($chargePermissionId, $payload, $headers = null) &#8594; PATCH to "v1/chargePermissions/$chargePermissionId"
-* **closeChargePermission**($chargePermissionId, $payload, $headers = null) &#8594; DELETE to "v1/chargePermissions/$chargePermissionId/close"
+### Amazon Checkout v2 ChargePermission object
+* **getChargePermission**($chargePermissionId, $headers = null) &#8594; GET to "$version/chargePermissions/$chargePermissionId"
+* **updateChargePermission**($chargePermissionId, $payload, $headers = null) &#8594; PATCH to "$version/chargePermissions/$chargePermissionId"
+* **closeChargePermission**($chargePermissionId, $payload, $headers = null) &#8594; DELETE to "$version/chargePermissions/$chargePermissionId/close"
 
-### Charge object
-* **createCharge**($payload, $headers) &#8594; POST to "v1/charges"
-* **getCharge**($chargeId, $headers = null) &#8594; GET to "v1/charges/$chargeId"
-* **captureCharge**($chargeId, $payload, $headers) &#8594; POST to "v1/charges/$chargeId/capture"
-* **cancelCharge**($chargeId, $payload, $headers = null) &#8594; DELETE to "v1/charges/$chargeId/cancel"
+### Amazon Checkout v2 Charge object
+* **createCharge**($payload, $headers) &#8594; POST to "$version/charges"
+* **getCharge**($chargeId, $headers = null) &#8594; GET to "$version/charges/$chargeId"
+* **captureCharge**($chargeId, $payload, $headers) &#8594; POST to "$version/charges/$chargeId/capture"
+* **cancelCharge**($chargeId, $payload, $headers = null) &#8594; DELETE to "$version/charges/$chargeId/cancel"
 
-### API V2 Refund object
-* **createRefund**($payload, $headers) &#8594; POST to "v1/refunds"
-* **getRefund**($refundId, $headers = null) &#8594; GET to "v1/refunds/$refundId"
+### Amazon Checkout v2 Refund object
+* **createRefund**($payload, $headers) &#8594; POST to "$version/refunds"
+* **getRefund**($refundId, $headers = null) &#8594; GET to "$version/refunds/$refundId"
 
 ## In-Store API
 Please contact your Amazon Pay Account Manager before using the In-Store API calls in a Production environment to obtain a copy of the In-Store Integration Guide.
 
-* **instoreMerchantScan**($payload, $headers = null) &#8594; POST to "in-store/v1/merchantScan"
-* **instoreCharge**($payload, $headers = null) &#8594; POST to "in-store/v1/charge"
-* **instoreRefund**($payload, $headers = null) &#8594; POST to "in-store/v1/refund"
+* **instoreMerchantScan**($payload, $headers = null) &#8594; POST to "in-store/$version/merchantScan"
+* **instoreCharge**($payload, $headers = null) &#8594; POST to "in-store/$version/charge"
+* **instoreRefund**($payload, $headers = null) &#8594; POST to "in-store/$version/refund"
 
 
 # Using Convenience Functions
@@ -130,7 +136,7 @@ Four quick steps are needed to make an API call:
 Step 1. Construct a Client (using the previously defined Config Array).
 
 ```php
-    $client = new AmazonPayV2\Client($amazonpay_config);
+    $client = new Amazon\Pay\API\Client($amazonpay_config);
 ```
 
 Step 2. Generate the payload.
@@ -219,7 +225,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
         ))
     );
     try {
-        $client = new AmazonPayV2\Client($amazonpay_config);
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
         $result = $client->deliveryTrackers($payload);
         if ($result['status'] === 200) {
             // success
@@ -235,7 +241,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
     ?>
 ```
 
-## API V2 - Create Checkout Session (AJAX service example)
+## Amazon Checkout v2 - Create Checkout Session (AJAX service example)
 
 ```php
     <?php
@@ -258,7 +264,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
     );
     $headers = array('x-amz-pay-Idempotency-Key' => uniqid());
     try {
-        $client = new AmazonPayV2\Client($amazonpay_config);
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
         $result = $client->createCheckoutSession($payload, $headers);
 
         header("Content-type:application/json; charset=utf-8");
@@ -276,7 +282,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
 ```
 
 
-## API V2 - Create Checkout Session (standalone script example)
+## Amazon Checkout v2 - Create Checkout Session (standalone script example)
 
 ```php
     <?php
@@ -297,7 +303,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
     );
     $headers = array('x-amz-pay-Idempotency-Key' => uniqid());
     try {
-        $client = new AmazonPayV2\Client($amazonpay_config);
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
         $result = $client->createCheckoutSession($payload, $headers);
         if ($result['status'] === 201) {
             // created
@@ -315,7 +321,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
     ?>
 ```
 
-## API V2 - Get Checkout Session
+## Amazon Checkout v2 - Get Checkout Session
 
 ```php
     <?php
@@ -330,7 +336,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
 
     try {
         $checkoutSessionId = '00000000-0000-0000-0000-000000000000';
-        $client = new AmazonPayV2\Client($amazonpay_config);
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
         $result = $client->getCheckoutSession($checkoutSessionId);
         if ($result['status'] === 200) {
             $response = json_decode($result['response'], true);
@@ -365,7 +371,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
     ?>
 ```
 
-## API V2 - Update Checkout Session
+## Amazon Checkout v2 - Update Checkout Session
 
 ```php
     <?php
@@ -396,7 +402,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
 
     try {
         $checkoutSessionId = '00000000-0000-0000-0000-000000000000';
-        $client = new AmazonPayV2\Client($amazonpay_config);
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
         $result = $client->updateCheckoutSession($checkoutSessionId, $payload);
         if ($result['status'] === 200) {
             $response = json_decode($result['response'], true);
@@ -413,7 +419,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
     ?>
 ```
 
-## API V2 - Capture Charge
+## Amazon Checkout v2 - Capture Charge
 
 ```php
     <?php
@@ -437,7 +443,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
     try {
         $chargeId = 'S01-0000000-0000000-C000000';
         $headers = array('x-amz-pay-Idempotency-Key' => uniqid());
-        $client = new AmazonPayV2\Client($amazonpay_config);
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
         $result = $client->captureCharge($chargeId, $payload, $headers);
 
         if ($result['status'] === 200) {
@@ -466,10 +472,10 @@ This SDK provides the ability to help you manually sign your API requests if you
 Example call to getPostSignedHeaders function with values:
 
 ```php
-    /*  getPostSignedHeaders convenience – Takes values for canonical request sorts and parses it and  
-     *  returns a signature for the request being sent 
-     *  @param $http_request_method [String] 
-     *  @param $request_uri [String] 
+    /*  getPostSignedHeaders convenience – Takes values for canonical request sorts and parses it and
+     *  returns a signature for the request being sent
+     *  @param $http_request_method [String]
+     *  @param $request_uri [String]
      *  @param $request_parameters [array()]
      *  @param $request_payload [string]
      */
@@ -481,7 +487,7 @@ Example request method:
     $method = 'POST';
 
     // API Merchant Scan
-    $url = 'https://pay-api.amazon.com/sandbox/in-store/v1/merchantScan';
+    $url = 'https://pay-api.amazon.com/sandbox/in-store/' . $version . '/merchantScan';
     
     $payload = array(
         'scanData' => 'UKhrmatMeKdlfY6b',
@@ -507,7 +513,7 @@ Example request method:
     
     $requestParameters = array();
 
-    $client = new AmazonPayV2\Client($amazonpay_config);
+    $client = new Amazon\Pay\API\Client($amazonpay_config);
 
     $postSignedHeaders = $client->getPostSignedHeaders($method, $url, $requestParameters, $payload);
 ```
@@ -517,10 +523,10 @@ Example call to createSignature function with values:
 (This will only be used if you don't use getPostSignedHeaders and want to create your own custom headers.)
 
 ```php
-  /*    createSignature convenience – Takes values for canonical request sorts and parses it and  
-   *    returns a signature for the request being sent 
-   *    @param $http_request_method [String] 
-   *    @param $request_uri [String] 
+  /*    createSignature convenience – Takes values for canonical request sorts and parses it and
+   *    returns a signature for the request being sent
+   *    @param $http_request_method [String]
+   *    @param $request_uri [String]
    *    @param $request_parameters [Array()]
    *    @param $pre_signed_headers [Array()]
    *    @param $request_payload [String]
@@ -532,7 +538,7 @@ Example call to createSignature function with values:
     $method = 'POST';
 
     // API Merchant Scan
-    $url = 'https://pay-api.amazon.com/sandbox/in-store/v1/merchantScan';
+    $url = 'https://pay-api.amazon.com/sandbox/in-store/' . $version . '/merchantScan';
     
     $payload = array(
         'scanData' => 'ScanData',
@@ -558,7 +564,7 @@ Example call to createSignature function with values:
     
     $requestParameters = array();
 
-    $client = new AmazonPayV2\Client($amazonpay_config);
+    $client = new Amazon\Pay\API\Client($amazonpay_config);
 
     // Create an array that will contain the parameters for the charge API call
     $pre_signed_headers = array();

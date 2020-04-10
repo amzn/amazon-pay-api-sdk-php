@@ -1,5 +1,5 @@
 <?php
-    namespace AmazonPayV2;
+    namespace Amazon\Pay\API;
 
     /* Interface class to showcase the public API methods for Amazon Pay */
 
@@ -17,10 +17,10 @@
         public function deliveryTrackers($payload, $headers = null);
 
 
-        // ----------------------------------- API V2 -----------------------------------
+        // ----------------------------------- Amazon Checkout v2 API -----------------------------------
 
 
-        /* API V2 - Create Checkout Session
+        /* Amazon Checkout v2 - Create Checkout Session
          *
          * Create a new Amazon Pay Checkout Session to customize and manage the buyer experience,
          * from when the buyer clicks the Amazon Pay button to when they complete checkout.
@@ -31,7 +31,7 @@
         public function createCheckoutSession($payload, $headers);
 
 
-        /* API V2 - Get Checkout Session
+        /* Amazon Checkout v2 - Get Checkout Session
          *
          * Get Checkout Session details includes buyer information, payment instrument details, and shipping address.
          * Use this operation to determine if checkout was successful after the buyer returns from the
@@ -43,7 +43,7 @@
         public function getCheckoutSession($checkoutSessionId, $headers = null);
 
 
-        /* API V2 - Update Checkout Session
+        /* Amazon Checkout v2 - Update Checkout Session
          *
          * Update the Checkout Session with transaction details. You can keep updating the Checkout Session,
          * as long as it’s in an Open state. Once all mandatory parameters have been set, the Checkout Session object
@@ -56,7 +56,7 @@
         public function updateCheckoutSession($checkoutSessionId, $payload, $headers = null);
 
 
-        /* API V2 - Get Charge Permission
+        /* Amazon Checkout v2 - Get Charge Permission
          *
          * Get Charge Permission to determine if this Charge Permission can be used to charge the buyer.
          * You can also use this operation to retrieve buyer details and their shipping address after a successful checkout.
@@ -68,7 +68,7 @@
         public function getChargePermission($chargePermissionId, $headers = null);
 
 
-        /* API V2 - Update Charge Permission
+        /* Amazon Checkout v2 - Update Charge Permission
          *
          * Update external merchant metadata such as: buyer note, store name, and external reference ID.
          *
@@ -79,7 +79,7 @@
         public function updateChargePermission($chargePermissionId, $payload, $headers = null);
 
 
-        /* API V2 - Close Charge Permission
+        /* Amazon Checkout v2 - Close Charge Permission
          *
          * Moves the Charge Permission to a Closed state. No future charges can be made and
          * pending charges will be canceled if you set cancelPendingCharges to true.
@@ -91,7 +91,7 @@
         public function closeChargePermission($chargePermissionId, $payload, $headers = null);
 
 
-        /* API V2 - Create Charge
+        /* Amazon Checkout v2 - Create Charge
          *
          * You can create a Charge to authorize payment, if you have a Charge Permission in a Chargeable state.
          * You can optionally capture payment immediately by setting captureNow to true. The response for
@@ -104,7 +104,7 @@
         public function createCharge($payload, $headers);
 
 
-        /* API V2 - Get Charge
+        /* Amazon Checkout v2 - Get Charge
          *
          * Get Charge details such as charge amount and authorization state.
          * Use this operation to determine if authorization or capture was successful.
@@ -115,7 +115,7 @@
         public function getCharge($chargeId, $headers = null);
 
 
-        /* API V2 - Capture Charge
+        /* Amazon Checkout v2 - Capture Charge
          *
          * Capture payment on a Charge in the Authorized state.
          * A successful Capture will move the Charge from Authorized to Captured state.
@@ -130,7 +130,7 @@
         public function captureCharge($chargeId, $payload, $headers);
 
 
-        /* API V2 - Cancel Charge
+        /* Amazon Checkout v2 - Cancel Charge
          *
          * Moves Charge to Canceled state and releases any authorized payments.
          * You can call this operation until Capture is initiated while Charge is in an AuthorizationInitiated or Authorized state.
@@ -142,7 +142,7 @@
         public function cancelCharge($chargeId, $payload, $headers = null);
 
 
-        /* API V2 - Create Refund
+        /* Amazon Checkout v2 - Create Refund
          *
          * Initiate a full or partial refund for a charge.
          * At your discretion, you can also choose to overcompensate the buyer and
@@ -156,7 +156,7 @@
         public function createRefund($payload, $headers);
 
 
-        /* API V2 - Get Refund
+        /* Amazon Checkout v2 - Get Refund
          *
          * Get refund details.
          *
@@ -224,7 +224,7 @@
         /* Signs and executes REST API call for arbitrary calls to Amazon Pay API Gateway
          *
          * @param method - [String] one of 'POST', 'GET', 'PATCH', 'DELETE'
-         * @param urlFragment - [String] (e.g. 'v1/deliveryTrackers')
+         * @param urlFragment - [String] (e.g. 'v999/deliveryTrackers')
          * @param payload - [String in JSON format] or [multi-dimension array with key and values]
          * @optional headers - [indexed array of string key-value pairs]
          */

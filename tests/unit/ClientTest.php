@@ -1,8 +1,8 @@
 <?php
-    namespace AmazonPayV2;
+    namespace Amazon\Pay\API;
     
     include 'vendor/autoload.php';
-    require_once 'AmazonPayV2/Client.php';
+    require_once 'Amazon/Pay/API/Client.php';
 
     use phpseclib\Crypt\RSA;
     use PHPUnit\Framework\TestCase;
@@ -11,7 +11,7 @@
     {
         private $configParams = array(
             'public_key_id' => 'ABC123DEF456XYZ789IJK000',
-            'private_key'   => 'tst/unit/unit_test_key_private.txt',
+            'private_key'   => 'tests/unit/unit_test_key_private.txt',
             'sandbox'       => true,
             'region'        => 'us'
         );
@@ -38,7 +38,7 @@
             'User-Agent'        => ''
         );
 
-        private $uri = "http://pay-api.amazon.jp/sandbox/in-store/v1/charge?extradata";
+        private $uri = "http://pay-api.amazon.jp/sandbox/in-store/v999/charge?extradata";
 
         public function testConfigArray()
         {
@@ -57,7 +57,7 @@
             $method = $class->getMethod('getCanonicalURI');
             $method->setAccessible(true);
 
-            $uriTrue = "/sandbox/in-store/v1/charge";
+            $uriTrue = "/sandbox/in-store/v999/charge";
 
             $this->assertEquals($uriTrue, $method->invoke($client, $this->uri));
         }
@@ -154,13 +154,13 @@
             );
             $payload = json_encode($request);
 
-            $request_uri = 'https://pay-api.amazon.com/live/account-management/v1/accounts/';
+            $request_uri = 'https://pay-api.amazon.com/live/account-management/' . Client::API_VERSION . '/accounts/';
             $this->assertEquals('', $method->invoke($client, $request_uri, 'POST', $payload));
 
-            $request_uri = 'https://pay-api.amazon.com/live/account-management/v1/accounts/';
+            $request_uri = 'https://pay-api.amazon.com/live/account-management/' . Client::API_VERSION . '/accounts/';
             $this->assertEquals($payload, $method->invoke($client, $request_uri, 'GET', $payload));
 
-            $request_uri = 'https://pay-api.amazon.com/live/in-store/v1/charge';
+            $request_uri = 'https://pay-api.amazon.com/live/in-store/' . Client::API_VERSION . '/charge';
             $this->assertEquals($payload, $method->invoke($client, $request_uri, 'POST', $payload));
         }
 
@@ -193,7 +193,7 @@
 
         public function testGetPostSignedHeaders() {
             $method = 'POST';
-            $url = 'https://pay-api.amazon.com/sandbox/in-store/v1/merchantScan';
+            $url = 'https://pay-api.amazon.com/sandbox/in-store/v999/merchantScan';
             $requestParameters = array();
 
             $request = array(
