@@ -10,10 +10,10 @@
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '1.0.0';
+        const SDK_VERSION = '2.0.0';
         const HASH_ALGORITHM = 'sha256';
         const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS';
-        const API_VERSION = 'v1';
+        const API_VERSION = 'v2';
 
         private $config = array();
 
@@ -501,19 +501,19 @@
 
         public function instoreMerchantScan($payload, $headers = null)
         {
-            return $this->apiCall('POST', 'in-store/' . self::API_VERSION . '/merchantScan', $payload, $headers);
+            return $this->apiCall('POST', self::API_VERSION . '/in-store/merchantScan', $payload, $headers);
         }
 
 
         public function instoreCharge($payload, $headers = null)
         {
-            return $this->apiCall('POST', 'in-store/' . self::API_VERSION . '/charge', $payload, $headers);
+            return $this->apiCall('POST', self::API_VERSION . '/in-store/charge', $payload, $headers);
         }
 
 
         public function instoreRefund($payload, $headers = null)
         {
-            return $this->apiCall('POST', 'in-store/' . self::API_VERSION . '/refund', $payload, $headers);
+            return $this->apiCall('POST', self::API_VERSION . '/in-store/refund', $payload, $headers);
         }
 
 
@@ -537,6 +537,12 @@
         }
 
 
+        public function completeCheckoutSession($checkoutSessionId, $payload, $headers = null)
+        {
+            return $this->apiCall('POST', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId . '/complete', $payload, $headers);
+        }
+
+
         public function getChargePermission($chargePermissionId, $headers = null)
         {
             return $this->apiCall('GET', self::API_VERSION . '/chargePermissions/' . $chargePermissionId, null, $headers);
@@ -551,7 +557,7 @@
 
         public function closeChargePermission($chargePermissionId, $payload, $headers = null)
         {
-            return $this->apiCall('DELETE', self::API_VERSION . '/chargePermissions/' . $chargePermissionId  . '/close', $payload, $headers);
+            return $this->apiCall('DELETE', self::API_VERSION . '/chargePermissions/' . $chargePermissionId . '/close', $payload, $headers);
         }
 
 

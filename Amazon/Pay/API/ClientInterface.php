@@ -56,6 +56,19 @@
         public function updateCheckoutSession($checkoutSessionId, $payload, $headers = null);
 
 
+        /* Amazon Checkout v2 - Complete Checkout Session
+         *
+         * Update the Checkout Session with transaction details. You can keep updating the Checkout Session,
+         * as long as it’s in an Open state. Once all mandatory parameters have been set, the Checkout Session object
+         * will respond with an unique amazonPayRedirectUrl that you will use to redirect the buyer to complete checkout.
+         *
+         * @param checkoutSessionId - [String] Checkout Session identifier
+         * @param payload - [String in JSON format] or [array]
+         * @optional headers - [array] - optional x-amz-pay-authtoken
+         */
+        public function completeCheckoutSession($checkoutSessionId, $payload, $headers = null);
+
+
         /* Amazon Checkout v2 - Get Charge Permission
          *
          * Get Charge Permission to determine if this Charge Permission can be used to charge the buyer.

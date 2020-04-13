@@ -105,6 +105,7 @@ The $headers field is not optional for create/POST calls below because it requir
 * **createCheckoutSession**($payload, $headers) &#8594; POST to "$version/checkoutSessions"
 * **getCheckoutSession**($checkoutSessionId, $headers = null) &#8594; GET to "$version/checkoutSessions/$checkoutSessionId"
 * **updateCheckoutSession**($checkoutSessionId, $payload, $headers = null) &#8594; PATCH to "$version/checkoutSessions/$checkoutSessionId"
+* **completeCheckoutSession**($checkoutSessionId, $payload, $headers = null) &#8594; POST to "$version/checkoutSessions/$checkoutSessionId/complete"
 
 ### Amazon Checkout v2 ChargePermission object
 * **getChargePermission**($chargePermissionId, $headers = null) &#8594; GET to "$version/chargePermissions/$chargePermissionId"
@@ -124,9 +125,9 @@ The $headers field is not optional for create/POST calls below because it requir
 ## In-Store API
 Please contact your Amazon Pay Account Manager before using the In-Store API calls in a Production environment to obtain a copy of the In-Store Integration Guide.
 
-* **instoreMerchantScan**($payload, $headers = null) &#8594; POST to "in-store/$version/merchantScan"
-* **instoreCharge**($payload, $headers = null) &#8594; POST to "in-store/$version/charge"
-* **instoreRefund**($payload, $headers = null) &#8594; POST to "in-store/$version/refund"
+* **instoreMerchantScan**($payload, $headers = null) &#8594; POST to "$version/in-store/merchantScan"
+* **instoreCharge**($payload, $headers = null) &#8594; POST to "$version/in-store/charge"
+* **instoreRefund**($payload, $headers = null) &#8594; POST to "$version/in-store/refund"
 
 
 # Using Convenience Functions
@@ -256,7 +257,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
         'sandbox'       => true
     );
     $payload = array(
-        'webCheckoutDetail' => array(
+        'webCheckoutDetails' => array(
             'checkoutReviewReturnUrl' => 'https://localhost/store/checkout_review',
             'checkoutResultReturnUrl' => 'https://localhost/store/checkout_result'
         ),
@@ -295,7 +296,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
         'sandbox'       => true
     );
     $payload = array(
-        'webCheckoutDetail' => array(
+        'webCheckoutDetails' => array(
             'checkoutReviewReturnUrl' => 'https://localhost/store/checkout_review',
             'checkoutResultReturnUrl' => 'https://localhost/store/checkout_result'
         ),
@@ -340,7 +341,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
         $result = $client->getCheckoutSession($checkoutSessionId);
         if ($result['status'] === 200) {
             $response = json_decode($result['response'], true);
-            $checkoutSessionState = $response['statusDetail']['state'];
+            $checkoutSessionState = $response['statusDetails']['state'];
             $chargeId = $response['chargeId'];
             $chargePermissionId = $response['chargePermissionId'];
 
@@ -385,7 +386,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
     );
 
     $payload = array(
-       'paymentDetail' => array(
+       'paymentDetails' => array(
             'paymentIntent' => 'Authorize',
             'canHandlePendingAuthorization' => false,
             'chargeAmount' => array(
@@ -406,7 +407,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
         $result = $client->updateCheckoutSession($checkoutSessionId, $payload);
         if ($result['status'] === 200) {
             $response = json_decode($result['response'], true);
-            $amazonPayRedirectUrl = $response['webCheckoutDetail']['amazonPayRedirectUrl'];
+            $amazonPayRedirectUrl = $response['webCheckoutDetails']['amazonPayRedirectUrl'];
             echo "amazonPayRedirectUrl=$amazonPayRedirectUrl\n";
         } else {
             // check the error
@@ -448,9 +449,9 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
 
         if ($result['status'] === 200) {
             $response = json_decode($result['response'], true);
-            $state = $response['statusDetail']['state'];
-            $reasonCode = $response['statusDetail']['reasonCode'];
-            $reasonDescription = $response['statusDetail']['reasonDescription'];
+            $state = $response['statusDetails']['state'];
+            $reasonCode = $response['statusDetails']['reasonCode'];
+            $reasonDescription = $response['statusDetails']['reasonDescription'];
             echo "state=$state; reasonCode=$reasonCode; reasonDescription=$reasonDescription\n";
         } else {
             // check the error
@@ -462,8 +463,6 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
     }
     ?>
 ```
-
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 # Manual Signing (Advanced Use-Cases Only)
 
@@ -487,7 +486,7 @@ Example request method:
     $method = 'POST';
 
     // API Merchant Scan
-    $url = 'https://pay-api.amazon.com/sandbox/in-store/' . $version . '/merchantScan';
+    $url = 'https://pay-api.amazon.com/sandbox/' . $versiom . '/in-store/merchantScan';
     
     $payload = array(
         'scanData' => 'UKhrmatMeKdlfY6b',

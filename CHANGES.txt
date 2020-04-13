@@ -1,3 +1,13 @@
+2.0.0 - April 2020
+- For /v2/ pay-api.amazon.com|eu|jp endpoints
+- New completeCheckoutSession API: POST to v2/checkoutSessions/{checkout_session_id}/complete
+- There are subtle changes in the back-end API between v1/ and v2/, plese check online integration changelog for complete details
+  Any references in code to webCheckoutDetail, paymentDetail, and statusDetail need to be pluarized to
+     webCheckoutDetails, paymentDetails, and statusDetails before moving to the new SDK
+  Billing address (if you are authorized to receive it), is a top-level node now, instead of being in PaymentPreference
+- There are also non-subtle workflow changes between v1/ and v2/ as the completeCheckoutSession API call will be required now
+  before funds can be captured
+
 1.0.0 - April 2020
 - Underlying API is going to be versioned; refactoring SDK to realign with API major version numbering
 
