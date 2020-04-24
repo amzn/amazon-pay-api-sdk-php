@@ -58,9 +58,7 @@
 
         /* Amazon Checkout v2 - Complete Checkout Session
          *
-         * Update the Checkout Session with transaction details. You can keep updating the Checkout Session,
-         * as long as it’s in an Open state. Once all mandatory parameters have been set, the Checkout Session object
-         * will respond with an unique amazonPayRedirectUrl that you will use to redirect the buyer to complete checkout.
+         * Complete Checkout Session is used to confirm completion of a Checkout Session.
          *
          * @param checkoutSessionId - [String] Checkout Session identifier
          * @param payload - [String in JSON format] or [array]
@@ -207,6 +205,12 @@
 
 
         // ----------------------------------- Signature Generation -----------------------------------
+
+        /* generateButtonSignature convenience – Generate static signature for amazon.Pay.renderButton used by checkout.js
+         * returns signature as a String
+         * @param $payload [String in JSON format]
+         */
+        public function generateButtonSignature($payload);
 
 
         /* getPostSignedHeaders convenience – Takes values for canonical request, creates a signature and

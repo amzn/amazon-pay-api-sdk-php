@@ -10,7 +10,7 @@
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '2.0.0';
+        const SDK_VERSION = '2.1.0';
         const HASH_ALGORITHM = 'sha256';
         const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS';
         const API_VERSION = 'v2';
@@ -392,9 +392,33 @@
             if ($signature === false) {
                 throw new \Exception('Unable to sign request, is your RSA private key valid?');
             }
-            
+
             return base64_encode($signature);
         }
+
+
+        public function generateButtonSignature($payload) {
+            $rsa = $this->setupRSA();
+
+            // if array is passed in, developer will need to ensure same json_encode function is used on website,
+            // otherwise the signed payload may not match if a different JSON to string function is used which may
+            // generate a string with different whitespace
+            if (is_array($payload)) {
+                $payload = json_encode($payload);
+            }
+
+            // stripcslashes function is used on payload to unescape sequences like http:\/\/ to http://
+            // and \"hello\" to "hello"
+            $hashedButtonRequest = self::AMAZON_SIGNATURE_ALGORITHM . "\n" . $this->hexAndHash(stripcslashes($payload));
+
+            $signature = $rsa->sign($hashedButtonRequest);
+            if ($signature === false) {
+                throw new \Exception('Unable to sign request, is your RSA private key valid?');
+            }
+
+            return base64_encode($signature);
+        }
+
 
         private function setupRSA() {
             $rsa = new RSA();
@@ -416,6 +440,7 @@
 
             return $rsa;
         }
+
 
         public function testPrivateKeyIntegrity() {
             echo "Testing private key: ";

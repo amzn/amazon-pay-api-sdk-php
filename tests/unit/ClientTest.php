@@ -215,5 +215,43 @@
 
         }
 
+        private function verifySignature($plaintext, $signature) {
+            $rsa = new RSA();
+            $rsa->setHash(Client::HASH_ALGORITHM);
+            $rsa->setMGFHash(Client::HASH_ALGORITHM);
+            $rsa->setSaltLength(20);
+            $rsa->loadKey(file_get_contents('tests/unit/unit_test_key_public.txt'));
+
+            return $rsa->verify($plaintext, base64_decode($signature));
+        }
+
+        public function testGenerateButtonSignature() {
+            $payload = '{"storeId":"amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx","webCheckoutDetails":{"checkoutReviewReturnUrl":"https://localhost/test/CheckoutReview.php","checkoutResultReturnUrl":"https://localhost/test/CheckoutResult.php"}}';
+
+            $client = new Client($this->configParams);
+            $signature = $client->generateButtonSignature($payload);
+
+            $plaintext = "AMZN-PAY-RSASSA-PSS\n8dec52d799607be40f82d5c8e7ecb6c171e6591c41b1111a576b16076c89381c";
+            $this->assertEquals($this->verifySignature($plaintext, $signature), true);
+
+            // confirm "same" sigature is generated if an array is passed in instead of a string
+            $payloadArray = array(
+                "storeId" => "amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "webCheckoutDetails" => array(
+                    "checkoutReviewReturnUrl" => "https://localhost/test/CheckoutReview.php",
+                    "checkoutResultReturnUrl" => "https://localhost/test/CheckoutResult.php"
+                ),
+            );
+
+            $signature = $client->generateButtonSignature($payloadArray);
+            $this->assertEquals($this->verifySignature($plaintext, $signature), true);
+
+            // confirm "same" signature is generated when quotes and slashes are esacped
+            $payloadEscaped = '{"storeId\":\"amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\"webCheckoutDetails\":{\"checkoutReviewReturnUrl\":\"https:\/\/localhost\/test\/CheckoutReview.php\",\"checkoutResultReturnUrl\":\"https:\/\/localhost\/test\/CheckoutResult.php\"}}';
+            $signature = $client->generateButtonSignature($payloadEscaped);
+            $this->assertEquals($this->verifySignature($plaintext, $signature), true);
+
+        }
+
     }
 ?>
