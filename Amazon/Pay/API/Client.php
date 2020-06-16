@@ -10,7 +10,7 @@
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '2.1.0';
+        const SDK_VERSION = '2.2.0';
         const HASH_ALGORITHM = 'sha256';
         const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS';
         const API_VERSION = 'v2';
@@ -459,6 +459,14 @@
 
         public function apiCall($method, $urlFragment, $payload, $headers = null, $queryParams = null) {
             if (is_array($payload)) {
+
+                // json_encode will fail if non-UTF-8 encodings are present, need to convert them to UTF-8
+                array_walk_recursive($payload, function (&$item, $key) {
+                    if (is_string($item) && mb_detect_encoding($item, 'UTF-8', true) === false) {
+                        $item = utf8_encode($item);
+                    }
+                });
+
                 $payload = json_encode($payload);
             }
 
@@ -543,6 +551,11 @@
 
 
         // ----------------------------------- Amazon Checkout v2 API -----------------------------------
+
+
+        public function getBuyer($buyerToken, $headers = null) {
+            return $this->apiCall('GET', self::API_VERSION . '/buyer/' . $buyerToken, null, $headers);
+        }
 
         public function createCheckoutSession($payload, $headers)
         {

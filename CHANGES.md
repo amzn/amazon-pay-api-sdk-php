@@ -1,3 +1,8 @@
+#### Version 2.2.0 - June 2020
+
+* Added getBuyer() API call
+* Fix issue with API call failures when request payload arrays contain character encodings other than UTF-8
+
 #### Version 2.1.0 - April 2020
 
 * Added generateButtonSignature() helper function to generate static signature for amazon.Pay.renderButton used by checkout.js

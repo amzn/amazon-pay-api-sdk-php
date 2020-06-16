@@ -20,6 +20,17 @@
         // ----------------------------------- Amazon Checkout v2 API -----------------------------------
 
 
+        /* Amazon Checkout v2 - Get Buyer
+         *
+         * Get Buyer details can include buyer ID, name, email address, postal code, and country code
+         * when used with the Amazon.Pay.renderButton 'SignIn' productType and corresponding signInScopes.
+         *
+         * @param buyerToken - [String] - Buyer Token
+         * @optional headers - [array] - optional x-amz-pay-authtoken
+         */
+        public function getBuyer($buyerToken, $headers = null);
+
+
         /* Amazon Checkout v2 - Create Checkout Session
          *
          * Create a new Amazon Pay Checkout Session to customize and manage the buyer experience,
