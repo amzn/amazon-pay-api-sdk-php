@@ -10,7 +10,7 @@
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '2.2.0';
+        const SDK_VERSION = '2.2.1';
         const HASH_ALGORITHM = 'sha256';
         const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS';
         const API_VERSION = 'v2';
@@ -554,7 +554,7 @@
 
 
         public function getBuyer($buyerToken, $headers = null) {
-            return $this->apiCall('GET', self::API_VERSION . '/buyer/' . $buyerToken, null, $headers);
+            return $this->apiCall('GET', self::API_VERSION . '/buyers/' . $buyerToken, null, $headers);
         }
 
         public function createCheckoutSession($payload, $headers)
