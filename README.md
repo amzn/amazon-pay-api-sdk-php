@@ -82,7 +82,7 @@ When using the convenience functions, the request payload will be signed using t
 In the event of request throttling, the HTTPS call will be attempted up to three times using an exponential backoff approach.
 
 ## Alexa Delivery Trackers API
-Please note that your merchant account must be whitelisted to use the [Delivery Trackers API](https://developer.amazon.com/docs/amazon-pay-onetime/delivery-order-notifications.html).
+Use this API to provide shipment tracking information to Amazon Pay so that Amazon Pay can notify buyers on Alexa when shipments are out for delivery and when they are delivered. Please refer to the [Delivery Trackers API documentation](https://developer.amazon.com/docs/amazon-pay-onetime/delivery-order-notifications.html) for additional information.
 
 * **deliveryTrackers**($payload, $headers = null) &#8594; POST to "$version/deliveryTrackers"
 
