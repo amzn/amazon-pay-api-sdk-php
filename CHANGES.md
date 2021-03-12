@@ -1,3 +1,7 @@
+#### Version 2.2.2 - March 2021
+
+* Removing deprecated API calls
+
 #### Version 2.2.1 - June 2020
 
 * Underlying endpoint for getBuyer API changed

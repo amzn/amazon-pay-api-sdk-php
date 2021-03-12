@@ -10,7 +10,7 @@
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '2.2.1';
+        const SDK_VERSION = '2.2.2';
         const HASH_ALGORITHM = 'sha256';
         const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS';
         const API_VERSION = 'v2';
@@ -296,30 +296,8 @@
                 . php_uname('s') . '/' . php_uname('m') . '/' . php_uname('r') . ')';
         }
 
-        /* checkForPaymentCriticalDataAPI - Takes the request uri and request payload, checks for
-        API names and modifies the payload if needed
-        @param $request_uri [String]
-        @param $http_request_method [String]
-        @param $request_payload [String]
-        */
-        private function checkForPaymentCriticalDataAPI($request_uri, $http_request_method, $request_payload) {
-            $paymentCriticalDataAPIs = array('/live/account-management/' . self::API_VERSION . '/accounts', '/sandbox/account-management/' . self::API_VERSION . '/accounts');
-            $allowedHttpMethods = array('POST', 'PUT', 'PATCH');
-
-            // For APIs handling payment critical data, the payload shouldn't be
-            // considered in the signature calculation
-            foreach($paymentCriticalDataAPIs as $api) {
-                if (strpos($request_uri, $api) !== false && in_array($http_request_method, $allowedHttpMethods)) {
-                    return '';
-                }
-            }
-            return $request_payload;
-        }
-
         public function getPostSignedHeaders($http_request_method, $request_uri, $request_parameters, $request_payload, $other_presigned_headers = null)
         {
-            $request_payload = $this->checkForPaymentCriticalDataAPI($request_uri, $http_request_method, $request_payload);
-
             $preSignedHeaders = array();
             $preSignedHeaders['accept'] = 'application/json';
             $preSignedHeaders['content-type'] = 'application/json';

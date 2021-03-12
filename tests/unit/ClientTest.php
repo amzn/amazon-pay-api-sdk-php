@@ -136,34 +136,6 @@
             $this->assertEquals($canonicalHeadersNamesTrue, $method->invoke($client, $this->requestHeaders));
         }
 
-        public function testCheckForPaymentCriticalDataAPI()
-        {
-            $client = new Client($this->configParams);
-            $class = new \ReflectionClass($client);
-            $method = $class->getMethod('checkForPaymentCriticalDataAPI');
-            $method->setAccessible(true);
-
-            $request = array(
-                'chargeId' => 'S03-2622124-8818929-C062250',
-                'refundReferenceId' => 'refundRef-1',
-                'refundTotal' => array(
-                    'currencyCode' => 'JPY',
-                    'amount' => 2
-                ),
-                'softDescriptor' => 'TESTSTORE refund',
-            );
-            $payload = json_encode($request);
-
-            $request_uri = 'https://pay-api.amazon.com/live/account-management/' . Client::API_VERSION . '/accounts/';
-            $this->assertEquals('', $method->invoke($client, $request_uri, 'POST', $payload));
-
-            $request_uri = 'https://pay-api.amazon.com/live/account-management/' . Client::API_VERSION . '/accounts/';
-            $this->assertEquals($payload, $method->invoke($client, $request_uri, 'GET', $payload));
-
-            $request_uri = 'https://pay-api.amazon.com/live/in-store/' . Client::API_VERSION . '/charge';
-            $this->assertEquals($payload, $method->invoke($client, $request_uri, 'POST', $payload));
-        }
-
         public function testGetHost()
         {
             $client = new Client($this->configParams);
