@@ -39,6 +39,9 @@
         );
 
         private $uri = "http://pay-api.amazon.jp/sandbox/in-store/v999/charge?extradata";
+        private $expectedUnitedStatesURL = 'https://pay-api.amazon.com/';
+        private $expectedEuropeURL = 'https://pay-api.amazon.eu/';
+        private $expectedJapanURL = 'https://pay-api.amazon.jp/';
 
         public function testConfigArray()
         {
@@ -223,6 +226,101 @@
             $signature = $client->generateButtonSignature($payloadEscaped);
             $this->assertEquals($this->verifySignature($plaintext, $signature), true);
 
+        }
+
+        // Method used to test the Environment Specific Endpoint URL
+        public function testCreateServiceURL() {
+            // Constants
+            $live = 'live/';
+            $sandbox = 'sandbox/';
+
+            // Testing Live specific endpoint for region United States
+            $this->verifyEnvironmentSpecificEndpoint('us', false, $this->expectedUnitedStatesURL . $live);
+
+            // Testing Sandbox specific endpoint for region United States
+            $this->verifyEnvironmentSpecificEndpoint('us', true, $this->expectedUnitedStatesURL . $sandbox);
+
+            // Testing Live specific endpoint for region Europe
+            $this->verifyEnvironmentSpecificEndpoint('eu', false, $this->expectedEuropeURL . $live);
+
+            // Testing Sandbox specific endpoint for region Europe
+            $this->verifyEnvironmentSpecificEndpoint('eu', true, $this->expectedEuropeURL . $sandbox);
+
+            // Testing Live specific endpoint for region Japan
+            $this->verifyEnvironmentSpecificEndpoint('jp', false, $this->expectedJapanURL . $live);
+
+            // Testing Sandbox specific endpoint for region Japan
+            $this->verifyEnvironmentSpecificEndpoint('jp', true, $this->expectedJapanURL . $sandbox);
+        }
+
+        // Generic method used to verify Environment Specific Endpoint
+        private function verifyEnvironmentSpecificEndpoint($region, $sandboxFlag, $expectedURL) {
+            // Configuration
+            $payConfig = array(
+                'public_key_id' => $this->configParams['public_key_id'],
+                'private_key'   => $this->configParams['private_key'],
+                'sandbox'       => $sandboxFlag,
+                'region'        => $region
+            );
+            $reflectionMethod = self::getMethod('createServiceUrl');
+            $client = new Client($payConfig);
+
+            // Building URL
+            $actualURL = $reflectionMethod->invoke($client);
+
+            // Assertion 
+            $this->assertEquals($actualURL, $expectedURL);
+        }
+
+        // Method used to apply reflection on method which is having abstraction
+        private static function getMethod($methodName) {
+            $reflectionClass = new \ReflectionClass('Amazon\Pay\API\Client');
+            $reflectionMethod = $reflectionClass->getMethod($methodName);
+            $reflectionMethod->setAccessible(true);
+            return $reflectionMethod;
+        }
+
+        // Method used to test the Unified Endpoint URL
+        public function testCreateServiceURLForUnifiedEndpoint() {
+            // Constants
+            $livePublicKeyId = 'LIVE-XXXXXXXXXXXXXXXXXXXXXXXX';
+            $sandboxPublicKeyId = 'SANDBOX-XXXXXXXXXXXXXXXXXXXXXXXX';
+
+            // Testing Unified endpoint URL by passing Live specific PublicKeyId for UnitedStates
+            $this->verifyUnifiedEndpoint('us', $livePublicKeyId, $this->expectedUnitedStatesURL);
+
+            // Testing Unified endpoint URL by passing Sandbox specific PublicKeyId for UnitedStates
+            $this->verifyUnifiedEndpoint('us', $sandboxPublicKeyId, $this->expectedUnitedStatesURL);
+
+            // Testing Unified endpoint URL by passing Live specific PublicKeyId for Europe
+            $this->verifyUnifiedEndpoint('eu', $livePublicKeyId, $this->expectedEuropeURL);
+
+            // Testing Unified endpoint URL by passing Sandbox specific PublicKeyId for Europe
+            $this->verifyUnifiedEndpoint('eu', $sandboxPublicKeyId, $this->expectedEuropeURL);
+
+            // Testing Unified endpoint URL by passing Live specific PublicKeyId for Japan
+            $this->verifyUnifiedEndpoint('jp', $livePublicKeyId, $this->expectedJapanURL);
+
+            // Testing Unified endpoint URL by passing Sandbox specific PublicKeyId for Japan
+            $this->verifyUnifiedEndpoint('jp', $sandboxPublicKeyId, $this->expectedJapanURL);
+        }
+
+        // Generic method used to verify Unified Endpoint
+        private function verifyUnifiedEndpoint($region, $publicKeyd, $expectedURL) {
+            // Configuration
+            $payConfig = array(
+                'public_key_id' => $publicKeyd,
+                'private_key'   => $this->configParams['private_key'],
+                'region'        => $region
+            );
+            $reflectionMethod = self::getMethod('createServiceUrl');
+            $client = new Client($payConfig);
+            
+            // Building URL
+            $actualURL = $reflectionMethod->invoke($client);
+
+            // Assertion 
+            $this->assertEquals($actualURL, $expectedURL);
         }
 
     }

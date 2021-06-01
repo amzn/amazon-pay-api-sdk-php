@@ -1,3 +1,7 @@
+#### Version 2.2.3 - May 2021
+* Enabled support for environment specific keys (i.e Public key & Private key). The changes are fully backwards-compatible, where merchants can also use non environment specific keys
+
+
 #### Version 2.2.2 - March 2021
 
 * Removing deprecated API calls

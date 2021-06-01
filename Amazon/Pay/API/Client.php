@@ -10,7 +10,7 @@
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '2.2.2';
+        const SDK_VERSION = '2.2.3';
         const HASH_ALGORITHM = 'sha256';
         const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS';
         const API_VERSION = 'v2';
@@ -80,7 +80,9 @@
                     } else {
                         $apiEndpointUrl  = $this->apiServiceUrls[$this->regionMappings[$region]];
                     }
-
+                    if($this->isEnvSpecificPublicKeyId($this->config['public_key_id'])){
+                        return 'https://' . $apiEndpointUrl . '/';
+                    } 
                     return 'https://' . $apiEndpointUrl . '/' . $modePath . '/';
                 } else {
                     throw new \Exception($region . ' is not a valid region');
@@ -88,6 +90,18 @@
             } else {
                 throw new \Exception("config['region'] is a required parameter and is not set");
             }
+        }
+        
+        // Method used to validate whether PublicKeyId starts with prefix LIVE or SANDBOX
+        private function isEnvSpecificPublicKeyId($publicKeyId) {
+            return $this->startsWith($this->config['public_key_id'], 'LIVE') || $this->startsWith($this->config['public_key_id'], 'SANDBOX');
+        }
+
+        // Method used to validate whether String starts with Prefix or not
+        private function startsWith($string, $prefix)
+        {   
+            $length = strlen($prefix);
+            return (substr(strtoupper($string), 0, $length) === $prefix);
         }
 
         /* canonicalURI
