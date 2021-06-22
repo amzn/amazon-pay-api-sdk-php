@@ -1,3 +1,6 @@
+#### Version 2.2.4 - June 2021
+* Added API Retry mechanism for error codes 502 & 504
+
 #### Version 2.2.3 - May 2021
 * Enabled support for environment specific keys (i.e Public key & Private key). The changes are fully backwards-compatible, where merchants can also use non environment specific keys
 

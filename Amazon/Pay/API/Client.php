@@ -10,7 +10,7 @@
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '2.2.3';
+        const SDK_VERSION = '2.2.4';
         const HASH_ALGORITHM = 'sha256';
         const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS';
         const API_VERSION = 'v2';

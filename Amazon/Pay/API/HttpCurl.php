@@ -112,7 +112,7 @@ class HttpCurl
                     $statusCode = $response['status'];
                     if ($statusCode == 200) {
                         $shouldRetry = false;
-                    } elseif ($statusCode == 429 || $statusCode == 500 || $statusCode == 503) {
+                    } elseif ($statusCode == 429 || $statusCode == 500 || $statusCode == 502 || $statusCode == 503 || $statusCode == 504) {
 
                         $shouldRetry = true;
                         if ($shouldRetry) {
