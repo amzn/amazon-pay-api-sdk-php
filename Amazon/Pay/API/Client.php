@@ -10,7 +10,7 @@
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '2.2.4';
+        const SDK_VERSION = '2.2.5';
         const HASH_ALGORITHM = 'sha256';
         const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS';
         const API_VERSION = 'v2';
@@ -112,7 +112,7 @@
         */
         private function getCanonicalURI($unEncodedURI)
         {
-            if ($unEncodedURI == '') {
+            if ($unEncodedURI === '') {
                 return '/';
             }
             $urlArray = parse_url($unEncodedURI);
@@ -139,7 +139,7 @@
                         $sortedCanonicalArray["$newKey"] = $subVal;
                     }
                 }
-                else if ((is_null($val)) || ($val == '')) {}
+                else if ((is_null($val)) || ($val === '')) {}
                 else {
                     $sortedCanonicalArray["$key"] = $val;
                 }
@@ -204,7 +204,7 @@
         {
             $sortedCanonicalArray = array();
             foreach ($headers as $key => $val) {
-                if ((is_null($val)) || ($val == '')) {}
+                if ((is_null($val)) || ($val === '')) {}
                 else {
                     $sortedCanonicalArray[strtolower("$key")] = $val;
                 }
@@ -234,7 +234,7 @@
         */
         private function getHost($unEncodedURI)
         {
-            if ($unEncodedURI == '') {
+            if ($unEncodedURI === '') {
                 return '/';
             }
 
@@ -320,7 +320,7 @@
             // Header x-amz-pay-idempotency-key is a special user-supplied header that must be pre-signed if used
             if (isset($other_presigned_headers)) {
                 foreach ($other_presigned_headers as $key => $val) {
-                    if (strtolower($key) == 'x-amz-pay-idempotency-key') {
+                    if (strtolower($key) === 'x-amz-pay-idempotency-key') {
                         if (isset($val) && ($val !== '')) {
                             $preSignedHeaders['x-amz-pay-idempotency-key'] = $val;
                         }

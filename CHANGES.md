@@ -1,3 +1,6 @@
+#### Version 2.2.5 - October 2021
+* Changing loose comparison operators to strict comparison operators to reduce unexpected behaviors and vulnerabilities
+
 #### Version 2.2.4 - June 2021
 * Added API Retry mechanism for error codes 502 & 504
 

@@ -20,7 +20,7 @@ class HttpCurl
             $middle = explode(":", $part, 2);
             if (isset($middle[1])) {
                 $key = strtolower(trim($middle[0]));
-                if ($key == 'x-amz-pay-request-id') {
+                if ($key === 'x-amz-pay-request-id') {
                     $this->requestId = trim($middle[1]);
                 }
             }
@@ -110,9 +110,9 @@ class HttpCurl
                     );
 
                     $statusCode = $response['status'];
-                    if ($statusCode == 200) {
+                    if ($statusCode === 200) {
                         $shouldRetry = false;
-                    } elseif ($statusCode == 429 || $statusCode == 500 || $statusCode == 502 || $statusCode == 503 || $statusCode == 504) {
+                    } elseif ($statusCode === 429 || $statusCode === 500 || $statusCode === 502 || $statusCode === 503 || $statusCode === 504) {
 
                         $shouldRetry = true;
                         if ($shouldRetry) {
