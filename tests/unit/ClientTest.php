@@ -4,7 +4,7 @@
     include 'vendor/autoload.php';
     require_once 'Amazon/Pay/API/Client.php';
 
-    use phpseclib\Crypt\RSA;
+    use phpseclib3\Crypt\RSA;
     use PHPUnit\Framework\TestCase;
 
     class ClientTest extends TestCase
@@ -191,13 +191,10 @@
         }
 
         private function verifySignature($plaintext, $signature) {
-            $rsa = new RSA();
-            $rsa->setHash(Client::HASH_ALGORITHM);
-            $rsa->setMGFHash(Client::HASH_ALGORITHM);
-            $rsa->setSaltLength(20);
-            $rsa->loadKey(file_get_contents('tests/unit/unit_test_key_public.txt'));
+            /** @var \phpseclib3\Crypt\Common\PrivateKey $rsa */
+            $rsa = RSA::loadPrivateKey(file_get_contents('tests/unit/unit_test_key_public.txt'))->withSaltLength(20);
 
-            return $rsa->verify($plaintext, base64_decode($signature));
+            return $rsa->getPublicKey()->verify($plaintext, base64_decode($signature));
         }
 
         public function testGenerateButtonSignature() {

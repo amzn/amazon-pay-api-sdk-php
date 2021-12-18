@@ -3,7 +3,7 @@
 
     namespace Amazon\Pay\API;
 
-    use phpseclib\Crypt\RSA;
+    use phpseclib3\Crypt\RSA;
 
     require_once 'ClientInterface.php';
     require_once 'HttpCurl.php';
@@ -413,11 +413,6 @@
 
 
         private function setupRSA() {
-            $rsa = new RSA();
-            $rsa->setHash(self::HASH_ALGORITHM);
-            $rsa->setMGFHash(self::HASH_ALGORITHM);
-            $rsa->setSaltLength(20);
-
             $key_spec = $this->config['private_key'];
 
             if ((strpos($key_spec, 'BEGIN RSA PRIVATE KEY') === false) && (strpos($key_spec, 'BEGIN PRIVATE KEY') === false)) {
@@ -425,9 +420,9 @@
                 if ($contents === false) {
                     throw new \Exception('Unable to load file: ' . $key_spec);
                 }
-                $rsa->loadKey($contents);
+                $rsa = RSA::loadPrivateKey($contents)->withSaltLength(20);
             } else {
-                $rsa->loadKey($key_spec);
+                $rsa = RSA::loadPrivateKey($key_spec)->withSaltLength(20);
             }
 
             return $rsa;
