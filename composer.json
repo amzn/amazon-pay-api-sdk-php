@@ -2,7 +2,7 @@
    "name": "amzn/amazon-pay-api-sdk-php",
    "type": "library",
    "description": "Amazon Pay API SDK (PHP)",
-   "version": "2.2.5",
+   "version": "2.3.0",
    "keywords": [
       "amazon",
       "pay",
@@ -28,7 +28,7 @@
    "require": {
       "ext-curl": "*",
       "php": ">=5.5.0",
-      "phpseclib/phpseclib": "~2.0"
+      "phpseclib/phpseclib": "~3.0"
    },
    "require-dev": {
       "phpunit/phpunit": "^4"

@@ -4,7 +4,7 @@
     include 'vendor/autoload.php';
     require_once 'Amazon/Pay/API/Client.php';
 
-    use phpseclib\Crypt\RSA;
+    use phpseclib3\Crypt\RSA;
     use PHPUnit\Framework\TestCase;
 
     class ClientTest extends TestCase
@@ -50,7 +50,7 @@
             $this->assertEquals($this->configParams['public_key_id'], $client->__get('public_key_id'));
             $this->assertEquals($this->configParams['private_key'], $client->__get('private_key'));
             $this->assertEquals($this->configParams['sandbox'], $client->__get('sandbox'));
-            $this->assertEquals($this->configParams['region'], $client->__get('region'));
+            $this->assertEquals($this->configParams['region'], ($client->__get('region') === 'na' ? 'us' : $client->__get('region')));
         }
 
         public function testGetCanonicalURI()
@@ -191,13 +191,9 @@
         }
 
         private function verifySignature($plaintext, $signature) {
-            $rsa = new RSA();
-            $rsa->setHash(Client::HASH_ALGORITHM);
-            $rsa->setMGFHash(Client::HASH_ALGORITHM);
-            $rsa->setSaltLength(20);
-            $rsa->loadKey(file_get_contents('tests/unit/unit_test_key_public.txt'));
+            $rsa = RSA::loadPrivateKey(file_get_contents('tests/unit/unit_test_key_private.txt'))->withSaltLength(Client::SALT_LENGTH);
 
-            return $rsa->verify($plaintext, base64_decode($signature));
+            return $rsa->getPublicKey()->verify($plaintext, base64_decode($signature));
         }
 
         public function testGenerateButtonSignature() {
@@ -206,7 +202,7 @@
             $client = new Client($this->configParams);
             $signature = $client->generateButtonSignature($payload);
 
-            $plaintext = "AMZN-PAY-RSASSA-PSS\n8dec52d799607be40f82d5c8e7ecb6c171e6591c41b1111a576b16076c89381c";
+            $plaintext = "AMZN-PAY-RSASSA-PSS-V2\n8dec52d799607be40f82d5c8e7ecb6c171e6591c41b1111a576b16076c89381c";
             $this->assertEquals($this->verifySignature($plaintext, $signature), true);
 
             // confirm "same" sigature is generated if an array is passed in instead of a string

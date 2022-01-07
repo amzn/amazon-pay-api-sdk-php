@@ -3,17 +3,18 @@
 
     namespace Amazon\Pay\API;
 
-    use phpseclib\Crypt\RSA;
+    use phpseclib3\Crypt\RSA;
 
     require_once 'ClientInterface.php';
     require_once 'HttpCurl.php';
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '2.2.5';
+        const SDK_VERSION = '2.3.0';
         const HASH_ALGORITHM = 'sha256';
-        const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS';
+        const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS-V2';
         const API_VERSION = 'v2';
+        const SALT_LENGTH = 32;
 
         private $config = array();
 
@@ -37,6 +38,7 @@
                     throw new \Exception('$config is of the incorrect type ' . gettype($config) . ' and should be of the type array');
                 }
 
+                $config['region'] =  $this->regionMappings[$config['region']];
                 $this->config = $config;
 
                 if (!empty($config['sandbox'])) {
@@ -413,11 +415,6 @@
 
 
         private function setupRSA() {
-            $rsa = new RSA();
-            $rsa->setHash(self::HASH_ALGORITHM);
-            $rsa->setMGFHash(self::HASH_ALGORITHM);
-            $rsa->setSaltLength(20);
-
             $key_spec = $this->config['private_key'];
 
             if ((strpos($key_spec, 'BEGIN RSA PRIVATE KEY') === false) && (strpos($key_spec, 'BEGIN PRIVATE KEY') === false)) {
@@ -425,9 +422,9 @@
                 if ($contents === false) {
                     throw new \Exception('Unable to load file: ' . $key_spec);
                 }
-                $rsa->loadKey($contents);
+                $rsa = RSA::loadPrivateKey($contents)->withSaltLength(self::SALT_LENGTH);
             } else {
-                $rsa->loadKey($key_spec);
+                $rsa = RSA::loadPrivateKey($key_spec)->withSaltLength(self::SALT_LENGTH);
             }
 
             return $rsa;

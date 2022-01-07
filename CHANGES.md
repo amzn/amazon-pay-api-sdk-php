@@ -1,3 +1,8 @@
+#### Version 2.3.0 - January 2022
+* Migrated signature generating algorithm from AMZN-PAY-RSASSA-PSS to AMZN-PAY-RSASSA-PSS-V2 & increasing salt length from 20 to 32
+* Upgraded phpseclib version from "2.0" to "3.0"
+* Note : From this SDK version, "algorithm" need to be provided as additional field in "createCheckoutSessionConfig" while rendering Amazon Pay button.
+
 #### Version 2.2.5 - October 2021
 * Changing loose comparison operators to strict comparison operators to reduce unexpected behaviors and vulnerabilities
 
