@@ -1,3 +1,7 @@
+#### Version 2.3.1 - January 2022
+* Applied patch to address issues occurred in Version 2.3.0.
+* **Please dont use Version 2.3.0**
+
 #### Version 2.3.0 - January 2022
 * Migrated signature generating algorithm from AMZN-PAY-RSASSA-PSS to AMZN-PAY-RSASSA-PSS-V2 & increasing salt length from 20 to 32
 * Upgraded phpseclib version from "2.0" to "3.0"

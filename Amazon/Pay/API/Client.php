@@ -10,11 +10,11 @@
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '2.3.0';
+        const SDK_VERSION = '2.3.1';
         const HASH_ALGORITHM = 'sha256';
-        const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS-V2';
+        const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS';
         const API_VERSION = 'v2';
-        const SALT_LENGTH = 32;
+        const SALT_LENGTH = 20;
 
         private $config = array();
 
@@ -38,7 +38,6 @@
                     throw new \Exception('$config is of the incorrect type ' . gettype($config) . ' and should be of the type array');
                 }
 
-                $config['region'] =  $this->regionMappings[$config['region']];
                 $this->config = $config;
 
                 if (!empty($config['sandbox'])) {
