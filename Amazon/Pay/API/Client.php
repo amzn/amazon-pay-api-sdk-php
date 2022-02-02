@@ -192,7 +192,7 @@
         private function hexAndHash($data)
         {
             $hash = self::HASH_ALGORITHM;
-            return bin2hex(hash($hash, $data, true));
+            return bin2hex(hash($hash, $data ?? '', true));
         }
     
         /* Formats date as ISO 8601 timestamp */
