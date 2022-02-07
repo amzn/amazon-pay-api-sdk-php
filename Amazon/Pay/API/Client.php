@@ -10,7 +10,7 @@
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '2.3.1';
+        const SDK_VERSION = '2.3.2';
         const HASH_ALGORITHM = 'sha256';
         const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS';
         const API_VERSION = 'v2';
@@ -192,7 +192,7 @@
         private function hexAndHash($data)
         {
             $hash = self::HASH_ALGORITHM;
-            return bin2hex(hash($hash, $data, true));
+            return bin2hex(hash($hash, isset($data) ? $data : '', true));
         }
     
         /* Formats date as ISO 8601 timestamp */
@@ -402,7 +402,7 @@
 
             // stripcslashes function is used on payload to unescape sequences like http:\/\/ to http://
             // and \"hello\" to "hello"
-            $hashedButtonRequest = self::AMAZON_SIGNATURE_ALGORITHM . "\n" . $this->hexAndHash(stripcslashes($payload));
+            $hashedButtonRequest = self::AMAZON_SIGNATURE_ALGORITHM . "\n" . $this->hexAndHash(isset($payload) ? stripcslashes($payload) : '');
 
             $signature = $rsa->sign($hashedButtonRequest);
             if ($signature === false) {

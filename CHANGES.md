@@ -1,3 +1,6 @@
+#### Version 2.3.2 - February 2022
+* Fixed Deprecation error for PHP version 8 - Passing null to parameter ($data) of type string is deprecate
+
 #### Version 2.3.1 - January 2022
 * Applied patch to address issues occurred in Version 2.3.0.
 * **Please dont use Version 2.3.0**
