@@ -58,7 +58,7 @@
          *
          * Update the Checkout Session with transaction details. You can keep updating the Checkout Session,
          * as long as it’s in an Open state. Once all mandatory parameters have been set, the Checkout Session object
-         * will respond with an unique amazonPayRedirectUrl that you will use to redirect the buyer to complete checkout.
+         * will respond with a unique amazonPayRedirectUrl that you will use to redirect the buyer to complete checkout.
          *
          * @param checkoutSessionId - [String] Checkout Session identifier
          * @param payload - [String in JSON format] or [array]
@@ -84,7 +84,7 @@
          * You can also use this operation to retrieve buyer details and their shipping address after a successful checkout.
          * You can only retrieve details for 30 days from the time the Charge Permission was created.
          *
-         * @param chargePermissionId - [String] - Charge Permission identifer
+         * @param chargePermissionId - [String] - Charge Permission identifier
          * @optional headers - [array] - optional x-amz-pay-authtoken
          */
         public function getChargePermission($chargePermissionId, $headers = null);
@@ -94,7 +94,7 @@
          *
          * Update external merchant metadata such as: buyer note, store name, and external reference ID.
          *
-         * @param chargePermissionId - [String] - Charge Permission identifer
+         * @param chargePermissionId - [String] - Charge Permission identifier
          * @param payload - [String in JSON format] or [array]
          * @optional headers - [array] - optional x-amz-pay-authtoken
          */
@@ -106,7 +106,7 @@
          * Moves the Charge Permission to a Closed state. No future charges can be made and
          * pending charges will be canceled if you set cancelPendingCharges to true.
          *
-         * @param chargePermissionId - [String] - Charge Permission identifer
+         * @param chargePermissionId - [String] - Charge Permission identifier
          * @param payload - [String in JSON format] or [array]
          * @optional headers - [array] - optional x-amz-pay-authtoken
          */
@@ -131,7 +131,7 @@
          * Get Charge details such as charge amount and authorization state.
          * Use this operation to determine if authorization or capture was successful.
          *
-         * @param chargeId - [String] - Charge identifer
+         * @param chargeId - [String] - Charge identifier
          * @optional headers - [array] - optional x-amz-pay-authtoken
          */
         public function getCharge($chargeId, $headers = null);
@@ -145,7 +145,7 @@
          * more than 7 days after authorization. See asynchronous processing for more information.
          * An unsuccessful Charge will move to a  Declined state if payment was declined.
          *
-         * @param chargeId - [String] - Charge identifer
+         * @param chargeId - [String] - Charge identifier
          * @param payload - [String in JSON format] or [array]
          * @param headers - [array] - requires x-amz-pay-Idempotency-Key header; optional x-amz-pay-authtoken
          */
@@ -157,7 +157,7 @@
          * Moves Charge to Canceled state and releases any authorized payments.
          * You can call this operation until Capture is initiated while Charge is in an AuthorizationInitiated or Authorized state.
          *
-         * @param chargeId - [String] - Charge identifer
+         * @param chargeId - [String] - Charge identifier
          * @param payload - [String in JSON format] or [array]
          * @optional headers - [array] - optional x-amz-pay-authtoken
          */
@@ -182,7 +182,7 @@
          *
          * Get refund details.
          *
-         * @param refundId - [String] - Refund identifer
+         * @param refundId - [String] - Refund identifier
          * @optional headers - [array] - optional x-amz-pay-authtoken
          */
         public function getRefund($refundId, $headers = null);
@@ -207,7 +207,7 @@
         public function instoreCharge($payload, $headers = null);
 
 
-        /* In-Store refund API call - Peforms Refund on a Charge ID
+        /* In-Store refund API call - Performs Refund on a Charge ID
          *
          * @param payload - [String in JSON format] or [multi-dimension array with key and values]
          * @optional headers - [indexed array of string key-value pairs]
@@ -259,4 +259,3 @@
         public function apiCall($method, $urlFragment, $payload, $headers = null);
 
     }
-?>
