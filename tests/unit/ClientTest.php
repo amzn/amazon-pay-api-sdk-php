@@ -68,7 +68,7 @@
             $this->assertEquals($this->configParams['region'], $client->__get('region'));
         }
 
-        public function testRequestOptionsConfig() {
+        public function testGetRequestOptionsConfig() {
             $client = new Client($this->requestOptionsConfig);
 
             $this->assertArrayHasKey('proxy', $client->__get('request_options'));
