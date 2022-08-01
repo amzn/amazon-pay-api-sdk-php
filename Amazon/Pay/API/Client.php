@@ -479,7 +479,7 @@
                 }
             }
 
-            $httpCurlRequest = new HttpCurl();
+            $httpCurlRequest = new HttpCurl(isset($this->config['request_options']) ? $this->config['request_options'] : []);
             $response = $httpCurlRequest->invokeCurl($method, $url, $payload, $postSignedHeaders);
             return $response;
         }

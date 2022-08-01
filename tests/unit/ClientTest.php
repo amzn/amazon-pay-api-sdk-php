@@ -13,7 +13,22 @@
             'public_key_id' => 'ABC123DEF456XYZ789IJK000',
             'private_key'   => 'tests/unit/unit_test_key_private.txt',
             'sandbox'       => true,
-            'region'        => 'us'
+            'region'        => 'us',
+            'request_options' => [
+                'proxy' => [
+                    'username' => 'foo',
+                    'password' => 'bar'
+                ]
+            ]
+        );
+
+        private $requestOptionsConfig = array(
+            'request_options' => [
+                'proxy' => [
+                    'username' => 'foo',
+                    'password' => 'bar'
+                ]
+            ]
         );
 
         private $requestParameters = array(
@@ -51,6 +66,14 @@
             $this->assertEquals($this->configParams['private_key'], $client->__get('private_key'));
             $this->assertEquals($this->configParams['sandbox'], $client->__get('sandbox'));
             $this->assertEquals($this->configParams['region'], $client->__get('region'));
+        }
+
+        public function testRequestOptionsConfig() {
+            $client = new Client($this->requestOptionsConfig);
+
+            $this->assertArrayHasKey('proxy', $client->__get('request_options'));
+            $this->assertEquals('foo', $client->__get('request_options')['proxy']['username']);
+            $this->assertEquals('bar', $client->__get('request_options')['proxy']['password']);
         }
 
         public function testGetCanonicalURI()
@@ -311,7 +334,7 @@
             );
             $reflectionMethod = self::getMethod('createServiceUrl');
             $client = new Client($payConfig);
-            
+
             // Building URL
             $actualURL = $reflectionMethod->invoke($client);
 

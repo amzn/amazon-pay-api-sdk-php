@@ -11,6 +11,14 @@ class HttpCurl
 
     private $curlResponseInfo = null;
     private $requestId = null;
+    private $config;
+
+    /**
+     * @param array $config
+     */
+    public function __construct ($config = []) {
+        $this->config = $config;
+    }
 
     private function header_callback($ch, $header_line)
     {
@@ -39,6 +47,11 @@ class HttpCurl
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_HEADERFUNCTION, array($this, 'header_callback'));
+
+        if ($this->useProxy()) {
+            curl_setopt($ch, CURLOPT_PROXY, $this->config['proxy']['host'] . ':' . $this->config['proxy']['port']);
+            curl_setopt($ch, CURLOPT_PROXYUSERPWD, $this->config['proxy']['username'] . ':' . $this->config['proxy']['password']);
+        }
 
         return $ch;
     }
@@ -153,6 +166,9 @@ class HttpCurl
         }
     }
 
+    private function useProxy() {
+        return !empty($this->config['proxy']['username']) && !empty($this->config['proxy']['password']) && !empty($this->config['proxy']['host']) && !empty($this->config['proxy']['port']);
+    }
 }
 
 ?>
