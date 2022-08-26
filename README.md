@@ -76,6 +76,22 @@ If you have created environment specific keys (i.e Public Key Starts with LIVE o
 	    'region'        => 'us' // Must be one of: 'us', 'eu', 'jp'         
 	);
 ```
+
+If you have want to enable proxy support, you can set it in the $amazonpay_config in the following way:
+```php
+    $amazonpay_config = array(
+        'public_key_id' => 'ABC123DEF456XYZ',  // RSA Public Key ID (this is not the Merchant or Seller ID)
+        'private_key'   => 'keys/private.pem', // Path to RSA Private Key (or a string representation)
+        'sandbox'       => true,               // true (Sandbox) or false (Production) boolean
+        'region'        => 'us',               // Must be one of: 'us', 'eu', 'jp'
+        'proxy' => [
+            'host' => 'proxy_host',
+            'port' => 'proxy_port',
+            'username' => 'proxy_username',
+            'password' => 'proxy_password',
+        ]
+    );
+```
 # Versioning
 
 The pay-api.amazon.com|eu|jp endpoint uses versioning to allow future updates.  The major version of this SDK will stay aligned with the API version of the endpoint.

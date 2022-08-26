@@ -1,3 +1,6 @@
+#### Version 2.4.0 - August 2022
+* Enabled Proxy Support for HttpCurl
+
 #### Version 2.3.2 - February 2022
 * Fixed Deprecation error for PHP version 8 - Passing null to parameter ($data) of type string is deprecate
 

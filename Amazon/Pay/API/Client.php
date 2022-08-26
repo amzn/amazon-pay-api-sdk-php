@@ -10,7 +10,7 @@
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '2.3.2';
+        const SDK_VERSION = '2.4.0';
         const HASH_ALGORITHM = 'sha256';
         const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS';
         const API_VERSION = 'v2';
@@ -479,7 +479,7 @@
                 }
             }
 
-            $httpCurlRequest = new HttpCurl();
+            $httpCurlRequest = new HttpCurl(isset($this->config['proxy']) ? $this->config['proxy'] : []);
             $response = $httpCurlRequest->invokeCurl($method, $url, $payload, $postSignedHeaders);
             return $response;
         }

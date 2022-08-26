@@ -11,6 +11,14 @@ class HttpCurl
 
     private $curlResponseInfo = null;
     private $requestId = null;
+    private $proxyConfig;
+
+    /**
+     * @param array $proxyConfig
+     */
+    public function __construct ($proxyConfig = []) {
+        $this->proxyConfig = $proxyConfig;
+    }
 
     private function header_callback($ch, $header_line)
     {
@@ -39,6 +47,11 @@ class HttpCurl
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_HEADERFUNCTION, array($this, 'header_callback'));
+
+        if ($this->useProxy()) {
+            curl_setopt($ch, CURLOPT_PROXY, $this->proxyConfig['host'] . ':' . $this->proxyConfig['port']);
+            curl_setopt($ch, CURLOPT_PROXYUSERPWD, $this->proxyConfig['username'] . ':' . $this->proxyConfig['password']);
+        }
 
         return $ch;
     }
@@ -151,6 +164,10 @@ class HttpCurl
             $delay = (int) (pow(4, $retries) * 100000) + 600000;
             usleep($delay);
         }
+    }
+
+    private function useProxy() {
+        return !empty($this->proxyConfig['username']) && !empty($this->proxyConfig['password']) && !empty($this->proxyConfig['host']) && !empty($this->proxyConfig['port']);
     }
 
 }

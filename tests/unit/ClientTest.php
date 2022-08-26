@@ -13,7 +13,20 @@
             'public_key_id' => 'ABC123DEF456XYZ789IJK000',
             'private_key'   => 'tests/unit/unit_test_key_private.txt',
             'sandbox'       => true,
-            'region'        => 'us'
+            'region'        => 'us',
+        );
+
+        private $configParamsWithProxy = array(
+            'public_key_id' => 'ABC123DEF456XYZ789IJK000',
+            'private_key'   => 'tests/unit/unit_test_key_private.txt',
+            'sandbox'       => true,
+            'region'        => 'us',
+            'proxy' => [
+                'host' => 'proxy_host',
+                'port' => 'proxy_port',
+                'username' => 'proxy_username',
+                'password' => 'proxy_password',
+            ]
         );
 
         private $requestParameters = array(
@@ -51,6 +64,19 @@
             $this->assertEquals($this->configParams['private_key'], $client->__get('private_key'));
             $this->assertEquals($this->configParams['sandbox'], $client->__get('sandbox'));
             $this->assertEquals($this->configParams['region'], $client->__get('region'));
+        }
+
+        public function testConfigArrayWithProxy() {
+            $client = new Client($this->configParamsWithProxy);
+            
+            $this->assertEquals($this->configParamsWithProxy['public_key_id'], $client->__get('public_key_id'));
+            $this->assertEquals($this->configParamsWithProxy['private_key'], $client->__get('private_key'));
+            $this->assertEquals($this->configParamsWithProxy['sandbox'], $client->__get('sandbox'));
+            $this->assertEquals($this->configParamsWithProxy['region'], $client->__get('region'));
+            $this->assertEquals($this->configParamsWithProxy['proxy']['host'], $client->__get('proxy')['host']);
+            $this->assertEquals($this->configParamsWithProxy['proxy']['port'], $client->__get('proxy')['port']);
+            $this->assertEquals($this->configParamsWithProxy['proxy']['username'], $client->__get('proxy')['username']);
+            $this->assertEquals($this->configParamsWithProxy['proxy']['password'], $client->__get('proxy')['password']);
         }
 
         public function testGetCanonicalURI()
