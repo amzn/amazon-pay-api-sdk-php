@@ -10,12 +10,10 @@
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '2.4.0';
+        const SDK_VERSION = '2.5.0';
         const HASH_ALGORITHM = 'sha256';
-        const AMAZON_SIGNATURE_ALGORITHM = 'AMZN-PAY-RSASSA-PSS';
         const API_VERSION = 'v2';
-        const SALT_LENGTH = 20;
-
+        
         private $config = array();
 
         private $apiServiceUrls = array(
@@ -38,6 +36,8 @@
                     throw new \Exception('$config is of the incorrect type ' . gettype($config) . ' and should be of the type array');
                 }
 
+                //V2 Algorithm accepts only 'eu', 'na' and 'jp' as region
+                $config['region'] =  $this->regionMappings[$config['region']];
                 $this->config = $config;
 
                 if (!empty($config['sandbox'])) {
@@ -61,6 +61,19 @@
                 return $this->config[strtolower($name)];
             } else {
                 throw new \Exception('Key ' . $name . ' is either not a part of the configuration array config or the ' . $name . ' does not match the key name in the config array', 1);
+            }
+        }
+
+        /* Get signature algorithm from config, use AMZN-PAY-RSASSA-PSS by default if not specified */
+        private function getAlgorithm() {
+            if (!empty($this->config['algorithm'])) {
+                if ($this->config['algorithm'] === 'AMZN-PAY-RSASSA-PSS' || $this->config['algorithm'] === 'AMZN-PAY-RSASSA-PSS-V2') {
+                    return $this->config['algorithm'];
+                } else {
+                    throw  new \Exception($this->config['algorithm'] . ' is not a valid algorithm');
+                }
+            } else {
+                return 'AMZN-PAY-RSASSA-PSS';
             }
         }
 
@@ -345,7 +358,7 @@
                 'x-amz-pay-host' => $this->getHost($request_uri),
                 'x-amz-pay-date' => $timeStamp,
                 'x-amz-pay-region' => $this->config['region'],
-                'authorization' => self::AMAZON_SIGNATURE_ALGORITHM . " PublicKeyId=" . $public_key_id . ", " . $signedHeaders,
+                'authorization' => $this->getAlgorithm() . " PublicKeyId=" . $public_key_id . ", " . $signedHeaders,
                 'user-agent' => $this->constructUserAgentHeader()
             );
 
@@ -379,7 +392,7 @@
                 $hashedPayload
             );
 
-            $hashedCanonicalRequest = self::AMAZON_SIGNATURE_ALGORITHM . "\n" . $this->hexAndHash($canonicalRequest);
+            $hashedCanonicalRequest = $this->getAlgorithm() . "\n" . $this->hexAndHash($canonicalRequest);
 
             $signature = $rsa->sign($hashedCanonicalRequest);
             if ($signature === false) {
@@ -402,8 +415,7 @@
 
             // stripcslashes function is used on payload to unescape sequences like http:\/\/ to http://
             // and \"hello\" to "hello"
-            $hashedButtonRequest = self::AMAZON_SIGNATURE_ALGORITHM . "\n" . $this->hexAndHash(isset($payload) ? stripcslashes($payload) : '');
-
+            $hashedButtonRequest = $this->getAlgorithm() . "\n" . $this->hexAndHash(isset($payload) ? stripcslashes($payload) : '');
             $signature = $rsa->sign($hashedButtonRequest);
             if ($signature === false) {
                 throw new \Exception('Unable to sign request, is your RSA private key valid?');
@@ -415,17 +427,16 @@
 
         private function setupRSA() {
             $key_spec = $this->config['private_key'];
-
+            $salt_length = $this->getAlgorithm() === 'AMZN-PAY-RSASSA-PSS' ? 20 : 32;
             if ((strpos($key_spec, 'BEGIN RSA PRIVATE KEY') === false) && (strpos($key_spec, 'BEGIN PRIVATE KEY') === false)) {
                 $contents = file_get_contents($key_spec);
                 if ($contents === false) {
                     throw new \Exception('Unable to load file: ' . $key_spec);
                 }
-                $rsa = RSA::loadPrivateKey($contents)->withSaltLength(self::SALT_LENGTH);
+                $rsa = RSA::loadPrivateKey($contents)->withSaltLength($salt_length);
             } else {
-                $rsa = RSA::loadPrivateKey($key_spec)->withSaltLength(self::SALT_LENGTH);
+                $rsa = RSA::loadPrivateKey($key_spec)->withSaltLength($salt_length);
             }
-
             return $rsa;
         }
 
@@ -444,6 +455,18 @@
             return true;
         }
 
+        private function parseShippingAddressList( &$response ) {
+            $responsePayload = json_decode($response['response'], true);
+
+            if(isset($responsePayload['shippingAddressList'])) {
+                $responsePayload['shippingAddressList'] = array_map(function ($shippingAddress) {
+                    return json_decode($shippingAddress, true);
+                }, $responsePayload['shippingAddressList']);
+                $response['response'] = json_encode($responsePayload, JSON_UNESCAPED_UNICODE);
+            }
+
+            return $response;
+        }
 
         public function apiCall($method, $urlFragment, $payload, $headers = null, $queryParams = null) {
             if (is_array($payload)) {
@@ -553,19 +576,22 @@
 
         public function getCheckoutSession($checkoutSessionId, $headers = null)
         {
-            return $this->apiCall('GET', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId, null, $headers);
+            $response = $this->apiCall('GET', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId, null, $headers);
+            return $this->parseShippingAddressList($response);
         }
 
 
         public function updateCheckoutSession($checkoutSessionId, $payload, $headers = null)
         {
-            return $this->apiCall('PATCH', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId, $payload, $headers);
+            $response = $this->apiCall('PATCH', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId, $payload, $headers);
+            return $this->parseShippingAddressList($response);
         }
 
 
         public function completeCheckoutSession($checkoutSessionId, $payload, $headers = null)
         {
-            return $this->apiCall('POST', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId . '/complete', $payload, $headers);
+            $response =  $this->apiCall('POST', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId . '/complete', $payload, $headers);
+            return $this->parseShippingAddressList($response);
         }
 
 
@@ -624,3 +650,4 @@
 
     }
 ?>
+

@@ -1,3 +1,8 @@
+### Version 2.5.0 - January 2023
+* Introducting new signature generation algorithm AMZN-PAY-RSASSA-PSS-V2 & increasing salt length from 20 to 32.
+* Added support for handling new parameter 'shippingAddressList' in Checkout Session response. Change is fully backwards compatible.
+* Note : To use new algorithm AMZN-PAY-RSASSA-PSS-V2, "algorithm" needs to be provided as an additional field in "$amazonpay_config" and also while rendering Amazon Pay button in "createCheckoutSessionConfig". The changes are backwards-compatible, SDK will use AMZN-PAY-RSASSA-PSS by default.
+
 #### Version 2.4.0 - August 2022
 * Enabled Proxy Support for HttpCurl
 
