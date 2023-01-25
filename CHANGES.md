@@ -1,3 +1,6 @@
+### Version 2.5.1 - January 2023
+* Applied bug fix for 2.5.0 - please use 2.5.1 if facing issues with region in 2.5.0
+
 ### Version 2.5.0 - January 2023
 * Introducting new signature generation algorithm AMZN-PAY-RSASSA-PSS-V2 & increasing salt length from 20 to 32.
 * Added support for handling new parameter 'shippingAddressList' in Checkout Session response. Change is fully backwards compatible.

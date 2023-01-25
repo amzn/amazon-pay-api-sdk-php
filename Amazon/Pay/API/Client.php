@@ -10,7 +10,7 @@
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '2.5.0';
+        const SDK_VERSION = '2.5.1';
         const HASH_ALGORITHM = 'sha256';
         const API_VERSION = 'v2';
         
@@ -37,7 +37,7 @@
                 }
 
                 //V2 Algorithm accepts only 'eu', 'na' and 'jp' as region
-                $config['region'] =  $this->regionMappings[$config['region']];
+                $config['region'] =  $this->regionMappings[strtolower($config['region'])];
                 $this->config = $config;
 
                 if (!empty($config['sandbox'])) {
@@ -455,7 +455,7 @@
             return true;
         }
 
-        private function parseShippingAddressList( &$response ) {
+        private function enhanceResponseWithShippingAddressList( &$response ) {
             $responsePayload = json_decode($response['response'], true);
 
             if(isset($responsePayload['shippingAddressList'])) {
@@ -577,21 +577,21 @@
         public function getCheckoutSession($checkoutSessionId, $headers = null)
         {
             $response = $this->apiCall('GET', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId, null, $headers);
-            return $this->parseShippingAddressList($response);
+            return $this->enhanceResponseWithShippingAddressList($response);
         }
 
 
         public function updateCheckoutSession($checkoutSessionId, $payload, $headers = null)
         {
             $response = $this->apiCall('PATCH', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId, $payload, $headers);
-            return $this->parseShippingAddressList($response);
+            return $this->enhanceResponseWithShippingAddressList($response);
         }
 
 
         public function completeCheckoutSession($checkoutSessionId, $payload, $headers = null)
         {
             $response =  $this->apiCall('POST', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId . '/complete', $payload, $headers);
-            return $this->parseShippingAddressList($response);
+            return $this->enhanceResponseWithShippingAddressList($response);
         }
 
 
