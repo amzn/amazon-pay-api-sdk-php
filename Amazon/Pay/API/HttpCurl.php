@@ -57,8 +57,7 @@ class HttpCurl
     }
 
 
-    /* Send using curl
-     */
+    /* Send using curl */
     private function httpSend($method, $url, $payload, $postSignedHeaders)
     {
         // Ensure we never send the "Expect: 100-continue" header by adding
@@ -70,15 +69,12 @@ class HttpCurl
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $postSignedHeaders);
 
-        $response = $this->execute($ch);
-        return $response;
+        return $this->execute($ch);
     }
 
     /* Execute Curl request */
     private function execute($ch)
     {
-        $response = '';
-
         $response = curl_exec($ch);
         if ($response === false) {
             $error_msg = "Unable to send request, underlying exception of " . curl_error($ch);
@@ -123,19 +119,11 @@ class HttpCurl
                     );
 
                     $statusCode = $response['status'];
-                    if ($statusCode === 200) {
-                        $shouldRetry = false;
-                    } elseif ($statusCode === 429 || $statusCode === 500 || $statusCode === 502 || $statusCode === 503 || $statusCode === 504) {
-
-                        $shouldRetry = true;
-                        if ($shouldRetry) {
-                            $this->pauseOnRetry(++$retries, $response);
-                            if ($retries > self::MAX_ERROR_RETRY) {
-                                $shouldRetry = false;
-                            }
-                        }
-                    } else {
-                        $shouldRetry = false;
+                    $shouldRetry = false;
+                    $retryCodes = array(408, 429, 500, 502, 503, 504);
+                    if (in_array($statusCode, $retryCodes)) {
+                        $this->pauseOnRetry(++$retries);
+                        $shouldRetry = $retries <= self::MAX_ERROR_RETRY;
                     }
                 } catch (\Exception $e) {
                     throw $e;
@@ -149,12 +137,12 @@ class HttpCurl
     }
 
     /* Exponential sleep on failed request
-     * Up to three retries will occur if first reqest fails
+     * Up to three retries will occur if first request fails
      * after 1.0 second, 2.2 seconds, and finally 7.0 seconds
      * @param retries current retry
      * @throws Exception if maximum number of retries has been reached
      */
-    private function pauseOnRetry($retries, $response)
+    private function pauseOnRetry($retries)
     {
         if ($retries <= self::MAX_ERROR_RETRY) {
             // PHP delays are in microseconds (1 million microsecond = 1 sec)
@@ -171,5 +159,3 @@ class HttpCurl
     }
 
 }
-
-?>

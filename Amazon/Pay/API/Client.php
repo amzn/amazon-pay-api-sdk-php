@@ -10,7 +10,7 @@
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '2.5.1';
+        const SDK_VERSION = '2.5.2';
         const HASH_ALGORITHM = 'sha256';
         const API_VERSION = 'v2';
         
@@ -94,7 +94,7 @@
                     } else {
                         $apiEndpointUrl  = $this->apiServiceUrls[$this->regionMappings[$region]];
                     }
-                    if($this->isEnvSpecificPublicKeyId($this->config['public_key_id'])){
+                    if($this->isEnvSpecificPublicKeyId()){
                         return 'https://' . $apiEndpointUrl . '/';
                     } 
                     return 'https://' . $apiEndpointUrl . '/' . $modePath . '/';
@@ -107,7 +107,7 @@
         }
         
         // Method used to validate whether PublicKeyId starts with prefix LIVE or SANDBOX
-        private function isEnvSpecificPublicKeyId($publicKeyId) {
+        private function isEnvSpecificPublicKeyId() {
             return $this->startsWith($this->config['public_key_id'], 'LIVE') || $this->startsWith($this->config['public_key_id'], 'SANDBOX');
         }
 
@@ -149,13 +149,13 @@
             $sortedCanonicalArray = array();
             foreach ($canonicalArray as $key => $val) {
                 if (is_array($val)) {
-                    foreach ($this->subArrays($val, "$key") as $newKey => $subVal) {
-                        $sortedCanonicalArray["$newKey"] = $subVal;
+                    foreach ($this->subArrays($val, $key) as $newKey => $subVal) {
+                        $sortedCanonicalArray[$newKey] = $subVal;
                     }
                 }
                 else if ((is_null($val)) || ($val === '')) {}
                 else {
-                    $sortedCanonicalArray["$key"] = $val;
+                    $sortedCanonicalArray[$key] = $val;
                 }
             }
             ksort($sortedCanonicalArray);
@@ -163,12 +163,12 @@
             return $sortedCanonicalArray;
         }
 
-        /* subArrays - helper function used to break out arays in an array */
-        private function subArrays($parameters, $catagory)
+        /* subArrays - helper function used to break out arrays in an array */
+        private function subArrays($parameters, $category)
         {
             $categoryIndex = 0;
             $newParameters = array();
-            $categoryString = "$catagory.";
+            $categoryString = "$category.";
             foreach ($parameters as $value) {
                 $categoryIndex++;
                 $newParameters[$categoryString . $categoryIndex] = $value;
@@ -186,7 +186,7 @@
             return $this->getParametersAsString($sortedRequestParameters);
         }
 
-        /* Convert paremeters to Url encoded query string */
+        /* Convert parameters to Url encoded query string */
         private function getParametersAsString(array $parameters)
         {
             $queryParameters = array();
@@ -220,7 +220,7 @@
             foreach ($headers as $key => $val) {
                 if ((is_null($val)) || ($val === '')) {}
                 else {
-                    $sortedCanonicalArray[strtolower("$key")] = $val;
+                    $sortedCanonicalArray[strtolower($key)] = $val;
                 }
             }
             ksort($sortedCanonicalArray);
@@ -238,9 +238,7 @@
                 $parameters[] = $key;
             }
             ksort($parameters);
-            $headerNames = implode(';', $parameters);
-
-            return $headerNames;
+            return implode(';', $parameters);
         }
 
         /* getHost
@@ -302,7 +300,7 @@
         }
 
         /* stringFromArray - helper function used to check if parameters is an array. 
-        *  If it is array it returns all the values as a string
+        *  If it is an array it returns all the values as a string
         *  Otherwise it returns parameters
         */
         private function stringFromArray($parameters)
@@ -316,7 +314,7 @@
         }
 
         /* Create the User Agent Header sent with the POST request */
-        /* Protected because of PSP module usaged */
+        /* Protected because of PSP module usage */
         protected function constructUserAgentHeader()
         {
             return 'amazon-pay-api-sdk-php/' . self::SDK_VERSION . ' ('
@@ -472,7 +470,7 @@
             if (is_array($payload)) {
 
                 // json_encode will fail if non-UTF-8 encodings are present, need to convert them to UTF-8
-                array_walk_recursive($payload, function (&$item, $key) {
+                array_walk_recursive($payload, function (&$item) {
                     if (is_string($item) && mb_detect_encoding($item, 'UTF-8', true) === false) {
                         $item = utf8_encode($item);
                     }
@@ -503,8 +501,7 @@
             }
 
             $httpCurlRequest = new HttpCurl(isset($this->config['proxy']) ? $this->config['proxy'] : []);
-            $response = $httpCurlRequest->invokeCurl($method, $url, $payload, $postSignedHeaders);
-            return $response;
+            return $httpCurlRequest->invokeCurl($method, $url, $payload, $postSignedHeaders);
         }
 
         /* Setter for sandbox
@@ -649,5 +646,3 @@
         }
 
     }
-?>
-

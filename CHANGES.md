@@ -1,3 +1,7 @@
+### Version 2.5.2 - March 2023
+* Added Error Code 408 to API retry logic
+* Corrected Typos & refactored codes
+
 ### Version 2.5.1 - January 2023
 * Applied bug fix for 2.5.0 - please use 2.5.1 if facing issues with region in 2.5.0
 
