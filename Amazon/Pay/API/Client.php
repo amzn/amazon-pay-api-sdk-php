@@ -10,7 +10,7 @@
  
     class Client implements ClientInterface
     {
-        const SDK_VERSION = '2.5.2';
+        const SDK_VERSION = '2.6.0';
         const HASH_ALGORITHM = 'sha256';
         const API_VERSION = 'v2';
         
@@ -644,5 +644,57 @@
         {
             return $this->apiCall('GET', self::API_VERSION . '/refunds/' . $refundId, null, $headers);
         }
+
+        // ----------------------------------- CV2 REPORTING APIS -----------------------------------
+ 
+ 
+        public function getReports($queryParameters = null, $headers = null)
+        {
+            return $this->apiCall('GET', self::API_VERSION . '/reports', null, $headers, $queryParameters);
+        }
+ 
+ 
+        public function getReportById($reportId, $headers = null)
+        {
+            return $this->apiCall('GET', self::API_VERSION . '/reports/' . $reportId, null, $headers);
+        }
+ 
+ 
+        public function getReportDocument($reportDocumentId, $headers = null)
+        {
+            return $this->apiCall('GET', self::API_VERSION . '/report-documents/' . $reportDocumentId, null, $headers);
+        }
+ 
+ 
+        public function getReportSchedules($reportTypes = null, $headers = null)
+        {
+            $queryParameters = array('reportTypes' => $reportTypes);
+            return $this->apiCall('GET', self::API_VERSION . '/report-schedules', null, $headers, $queryParameters);
+        }
+ 
+ 
+        public function getReportScheduleById($reportScheduleId, $headers = null)
+        {
+            return $this->apiCall('GET', self::API_VERSION . '/report-schedules/' . $reportScheduleId, null, $headers);
+        }
+ 
+ 
+        public function createReport($requestPayload, $headers = null)
+        {
+            return $this->apiCall('POST', self::API_VERSION . '/reports' , $requestPayload, $headers);
+        }
+ 
+ 
+        public function createReportSchedule($requestPayload, $headers = null)
+        {
+            return $this->apiCall('POST', self::API_VERSION . '/report-schedules' , $requestPayload, $headers);
+        }
+ 
+ 
+        public function cancelReportSchedule($reportScheduleId, $headers = null) 
+        {
+            return $this->apiCall('DELETE', self::API_VERSION . '/report-schedules/' . $reportScheduleId, null, $headers);
+        }
+
 
     }

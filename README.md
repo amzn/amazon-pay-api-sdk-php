@@ -632,3 +632,294 @@ Example call to createSignature function with values:
     $client = new Client($amazonpay_config);
     $signedInput = $client->createSignature($method, $url, $requestParameters, $pre_signed_headers, $payload, '20180326T203730Z');
 ```
+
+#  Reporting APIs code samples
+
+## Amazon Checkout v2 Reporting APIs - GetReport API
+
+```php
+    <?php
+    include 'vendor/autoload.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'MY_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'US',
+        'sandbox'       => false
+    );
+
+    $requestPayload = array(
+        'reportType' => '_GET_FLAT_FILE_OFFAMAZONPAYMENTS_ORDER_REFERENCE_DATA_',
+        'processingStatus' => 'COMPLETED',
+        'pageSize' => '10'
+    );
+
+    try {
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->getReports($requestPayload);
+
+        if ($result['status'] === 200) {
+            // success
+            $response = $result['response'];
+            echo $response;
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+        } catch (\Exception $e) {
+            // handle the exception
+            echo $e . "\n";
+        }
+    ?>
+```
+
+
+## Amazon Checkout v2 Reporting APIs - GetReportById API
+
+```php
+    <?php
+    include 'vendor/autoload.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'MY_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'US',
+        'sandbox'       => true
+    );
+
+    try {
+        $reportId = "1234567890";
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->getReportById($reportId);
+
+        if ($result['status'] === 200) {
+            // success
+            $response = $result['response'];
+            echo $response;
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+        } catch (\Exception $e) {
+            // handle the exception
+            echo $e . "\n";
+        }
+    ?>
+```
+
+
+## Amazon Checkout v2 Reporting APIs - GetReportDocument API
+
+```php
+    <?php
+    include 'vendor/autoload.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'MY_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'US',
+        'sandbox'       => true
+    );
+
+    try {
+        $reportDocumentId = "1234567890";
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->getReportDocument($reportDocumentId);
+
+        if ($result['status'] === 200) {
+            // success
+            $response = $result['response'];
+            echo $response;
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+        } catch (\Exception $e) {
+            // handle the exception
+            echo $e . "\n";
+        }
+    ?>
+```
+
+
+## Amazon Checkout v2 Reporting APIs - GetReportSchedules API
+
+```php
+    <?php
+    include 'vendor/autoload.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'MY_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'US',
+        'sandbox'       => true
+    );
+
+    try {
+        $reportTypes = "_GET_FLAT_FILE_OFFAMAZONPAYMENTS_ORDER_REFERENCE_DATA_,_GET_FLAT_FILE_OFFAMAZONPAYMENTS_BILLING_AGREEMENT_DATA_";
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->getReportSchedules($reportTypes);
+
+        if ($result['status'] === 200) {
+            // success
+            $response = $result['response'];
+            echo $response;
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+        } catch (\Exception $e) {
+            // handle the exception
+            echo $e . "\n";
+        }
+    ?>
+```
+
+
+## Amazon Checkout v2 Reporting APIs - GetReportScheduleById API
+
+```php
+    <?php
+    include 'vendor/autoload.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'MY_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'US',
+        'sandbox'       => true
+    );
+
+    try {
+        $reportScheduleId = "1234567890";
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->getReportScheduleById($reportScheduleId);
+
+        if ($result['status'] === 200) {
+            // success
+            $response = $result['response'];
+            echo $response;
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+        } catch (\Exception $e) {
+            // handle the exception
+            echo $e . "\n";
+        }
+    ?>
+```
+
+
+## Amazon Checkout v2 Reporting APIs - CreateReport API
+
+```php
+    <?php
+    include 'vendor/autoload.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'MY_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'US',
+        'sandbox'       => true
+    );
+
+    $headers = array('x-amz-pay-Idempotency-Key' => uniqid());
+
+    try {
+        $requestPayload = array(
+            'reportType' => '_GET_FLAT_FILE_OFFAMAZONPAYMENTS_AUTHORIZATION_DATA_',
+            'startTime' => '20221114T074550Z',
+            'endTime' => '20221114T074550Z'
+        );
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->createReport($requestPayload);
+
+        if ($result['status'] === 200) {
+            // success
+            $response = $result['response'];
+            echo $response;
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+        } catch (\Exception $e) {
+            // handle the exception
+            echo $e . "\n";
+        }
+    ?>
+```
+
+
+## Amazon Checkout v2 Reporting APIs - CreateReportSchedule API
+
+```php
+    <?php
+    include 'vendor/autoload.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'MY_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'US',
+        'sandbox'       => true
+    );
+
+    $headers = array('x-amz-pay-Idempotency-Key' => uniqid());
+
+    try {
+        $requestPayload = array(
+            'reportType' => '_GET_FLAT_FILE_OFFAMAZONPAYMENTS_ORDER_REFERENCE_DATA_',
+            'scheduleFrequency' => 'P1D',
+            'nextReportCreationTime' => '20221114T074550Z',
+            'deleteExistingSchedule' => false
+        );
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->createReportSchedule($requestPayload);
+
+        if ($result['status'] === 200) {
+            // success
+            $response = $result['response'];
+            echo $response;
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+        } catch (\Exception $e) {
+            // handle the exception
+            echo $e . "\n";
+        }
+    ?>
+```
+
+
+## Amazon Checkout v2 Reporting APIs - CancelReportSchedule API
+
+```php
+    <?php
+    include 'vendor/autoload.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'MY_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'US',
+        'sandbox'       => true
+    );
+
+    try {
+        $reportScheduleId = "1234567890";
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->cancelReportSchedule($reportScheduleId);
+
+        if ($result['status'] === 200) {
+            // success
+            $response = $result['response'];
+            echo $response;
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+        } catch (\Exception $e) {
+            // handle the exception
+            echo $e . "\n";
+        }
+    ?>
+```

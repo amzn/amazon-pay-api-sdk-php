@@ -1,3 +1,6 @@
+### Version 2.6.0 - March 2023
+* Introducing new v2 Reporting APIs. Reports allow you to retrieve consolidated data about Amazon Pay transactions and settlements. In addition to managing and downloading reports using Seller Central, Amazon Pay offers APIs to manage and retrieve your reports.
+
 ### Version 2.5.2 - March 2023
 * Added Error Code 408 to API retry logic
 * Corrected Typos & refactored codes
