@@ -6,11 +6,12 @@
     use phpseclib3\Crypt\RSA;
 
     require_once 'ClientInterface.php';
+    require_once 'ReportingClientInterface.php';
     require_once 'HttpCurl.php';
  
-    class Client implements ClientInterface
+    class Client implements ClientInterface, ReportingClientInterface
     {
-        const SDK_VERSION = '2.6.0';
+        const SDK_VERSION = '2.6.1';
         const HASH_ALGORITHM = 'sha256';
         const API_VERSION = 'v2';
         
