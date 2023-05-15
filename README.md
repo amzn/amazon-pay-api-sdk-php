@@ -61,32 +61,41 @@ Namespace for this package is Amazon\Pay\API so that there are no conflicts with
 
 ```php
     $amazonpay_config = array(
-        'public_key_id' => 'ABC123DEF456XYZ',  // RSA Public Key ID (this is not the Merchant or Seller ID)
-        'private_key'   => 'keys/private.pem', // Path to RSA Private Key (or a string representation)
-        'sandbox'       => true,               // true (Sandbox) or false (Production) boolean
-        'region'        => 'us',                // Must be one of: 'us', 'eu', 'jp'
-        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2'  //Amazon Signing Algorithm, Optional: uses AMZN-PAY-RSASSA-PSS if not specified
+        'public_key_id'      => 'ABC123DEF456XYZ',  // RSA Public Key ID (this is not the Merchant or Seller ID)
+        'private_key'        => 'keys/private.pem', // Path to RSA Private Key (or a string representation)
+        'sandbox'            => true,               // true (Sandbox) or false (Production) boolean
+        'region'             => 'us',               // Must be one of: 'us', 'eu', 'jp'
+        'integrator_id'      => 'A1X1X1X1X1X1X1',   // (optional) Platform ID in Amazon UID format
+        'integrator_version' => '1.2.3',            // (optional) Semantic version of the integration
+        'platform_version'   => '3.2.1',            // (optional) Semantic version of the platform
+        'algorithm'          => 'AMZN-PAY-RSASSA-PSS-V2' //Amazon Signing Algorithm, Optional: uses AMZN-PAY-RSASSA-PSS if not specified
     );
 ```
 If you have created environment specific keys (i.e Public Key Starts with LIVE or SANDBOX) in Seller Central, then use those PublicKeyId & PrivateKey. In this case, there is no need to pass the Sandbox parameter to the ApiConfiguration.
 
 ```php
     $amazonpay_config = array(
-	    'public_key_id' => 'MY_PUBLIC_KEY_ID',  // LIVE-XXXXX or SANDBOX-XXXXX
-	    'private_key'   => 'keys/private.pem', // Path to RSA Private Key (or a string representation)
-	    'region'        => 'us', // Must be one of: 'us', 'eu', 'jp'
-        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2'  //Amazon Signing Algorithm, Optional: uses AMZN-PAY-RSASSA-PSS if not specified
-	);
+        'public_key_id'      => 'MY_PUBLIC_KEY_ID', // LIVE-XXXXX or SANDBOX-XXXXX
+        'private_key'        => 'keys/private.pem', // Path to RSA Private Key (or a string representation)
+        'region'             => 'us',               // Must be one of: 'us', 'eu', 'jp'
+        'integrator_id'      => 'A1X1X1X1X1X1X1',   // (optional) Platform ID in Amazon UID format
+        'integrator_version' => '1.2.3',            // (optional) Semantic version of the integration
+        'platform_version'   => '3.2.1',            // (optional) Semantic version of the platform
+        'algorithm'          => 'AMZN-PAY-RSASSA-PSS-V2' //Amazon Signing Algorithm, Optional: uses AMZN-PAY-RSASSA-PSS if not specified
+    );
 ```
 
 If you have want to enable proxy support, you can set it in the $amazonpay_config in the following way:
 ```php
     $amazonpay_config = array(
-        'public_key_id' => 'ABC123DEF456XYZ',  // RSA Public Key ID (this is not the Merchant or Seller ID)
-        'private_key'   => 'keys/private.pem', // Path to RSA Private Key (or a string representation)
-        'sandbox'       => true,               // true (Sandbox) or false (Production) boolean
-        'region'        => 'us',               // Must be one of: 'us', 'eu', 'jp'
-        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',  //Amazon Signing Algorithm, Optional: uses AMZN-PAY-RSASSA-PSS if not specified
+        'public_key_id'      => 'ABC123DEF456XYZ',  // RSA Public Key ID (this is not the Merchant or Seller ID)
+        'private_key'        => 'keys/private.pem', // Path to RSA Private Key (or a string representation)
+        'sandbox'            => true,               // true (Sandbox) or false (Production) boolean
+        'region'             => 'us',               // Must be one of: 'us', 'eu', 'jp'
+        'integrator_id'      => 'A1X1X1X1X1X1X1',   // (optional) Platform ID in Amazon UID format
+        'integrator_version' => '1.2.3',            // (optional) Semantic version of the integration
+        'platform_version'   => '3.2.1',            // (optional) Semantic version of the platform
+        'algorithm'          => 'AMZN-PAY-RSASSA-PSS-V2', //Amazon Signing Algorithm, Optional: uses AMZN-PAY-RSASSA-PSS if not specified
         'proxy' => [
             'host' => 'proxy_host',
             'port' => 'proxy_port',

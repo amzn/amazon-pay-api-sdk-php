@@ -12,10 +12,13 @@
         private $configArray = array(
             //config 
             array(
-                'public_key_id' => 'ABC123DEF456XYZ789IJK000',
-                'private_key'   => 'tests/unit/unit_test_key_private.txt',
-                'sandbox'       => true,
-                'region'        => 'na'
+                'public_key_id'      => 'ABC123DEF456XYZ789IJK000',
+                'private_key'        => 'tests/unit/unit_test_key_private.txt',
+                'sandbox'            => true,
+                'region'             => 'na'
+                'integrator_id'      => 'A1X1X1X1X1X1X1',
+                'integrator_version' => '3.2.1',
+                'platform_version'   => '1.2.3'
             ),
             //config with algorithm as a parameter
             array(

@@ -12,6 +12,7 @@
     class Client implements ClientInterface, ReportingClientInterface
     {
         const SDK_VERSION = '2.6.1';
+        const SDK_TYPE = 'php';
         const HASH_ALGORITHM = 'sha256';
         const API_VERSION = 'v2';
         
@@ -357,9 +358,24 @@
                 'x-amz-pay-host' => $this->getHost($request_uri),
                 'x-amz-pay-date' => $timeStamp,
                 'x-amz-pay-region' => $this->config['region'],
+                'x-amz-pay-sdk-type' => self::SDK_TYPE,
+                'x-amz-pay-sdk-version' => self::SDK_VERSION,
+                'x-amz-pay-language-version' => phpversion(),
                 'authorization' => $this->getAlgorithm() . " PublicKeyId=" . $public_key_id . ", " . $signedHeaders,
                 'user-agent' => $this->constructUserAgentHeader()
             );
+
+            if(isset($this->config['integrator_id'])){
+                $headerArray['x-amz-pay-integrator-id'] = $this->config['integrator_id'];
+            }
+
+            if(isset($this->config['integrator_version'])){
+                $headerArray['x-amz-pay-integrator-version'] = $this->config['integrator_version'];
+            }
+
+            if(isset($this->config['platform_version'])){
+                $headerArray['x-amz-pay-platform-version'] = $this->config['platform_version'];
+            }
 
             ksort($headerArray);
             foreach ($headerArray as $key => $value) {
