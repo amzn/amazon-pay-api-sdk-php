@@ -1,3 +1,7 @@
+### Version 2.6.2 - June 2023
+* Added optional headers to APIs. These are intended to be used by solution providers to send their platform/plugin id’s and versions.
+* Corrected README.md file related to Reporting APIs.
+
 ### Version 2.6.1 - March 2023
 * Corrected some minor changes in Reporting APIs
 * Note: Please use 2.6.1 if you are implementing Reporting APIs and avoid 2.6.0

@@ -66,6 +66,9 @@ Namespace for this package is Amazon\Pay\API so that there are no conflicts with
         'sandbox'       => true,               // true (Sandbox) or false (Production) boolean
         'region'        => 'us',                // Must be one of: 'us', 'eu', 'jp'
         'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2'  //Amazon Signing Algorithm, Optional: uses AMZN-PAY-RSASSA-PSS if not specified
+        'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
+        'integrator_version' => '1.2.3',            // (optional) Solution Provider Plugin Version in Semantic Versioning Format
+        'platform_version'   => '0.0.4'            // (optional) Solution Provider Platform Version in Semantic Versioning Format
     );
 ```
 If you have created environment specific keys (i.e Public Key Starts with LIVE or SANDBOX) in Seller Central, then use those PublicKeyId & PrivateKey. In this case, there is no need to pass the Sandbox parameter to the ApiConfiguration.
@@ -87,6 +90,9 @@ If you have want to enable proxy support, you can set it in the $amazonpay_confi
         'sandbox'       => true,               // true (Sandbox) or false (Production) boolean
         'region'        => 'us',               // Must be one of: 'us', 'eu', 'jp'
         'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',  //Amazon Signing Algorithm, Optional: uses AMZN-PAY-RSASSA-PSS if not specified
+        'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
+        'integrator_version' => '1.2.3',            // (optional) Solution Provider Plugin Version in Semantic Versioning Format
+        'platform_version'   => '0.0.4',            // (optional) Solution Provider Platform Version in Semantic Versioning Format
         'proxy' => [
             'host' => 'proxy_host',
             'port' => 'proxy_port',
@@ -286,6 +292,9 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
         'region'        => 'US',
         'sandbox'       => true,
         'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
+        'integrator_version' => '1.2.3',            // (optional) Solution Provider Plugin Version in Semantic Versioning Format
+        'platform_version'   => '0.0.4'            // (optional) Solution Provider Platform Version in Semantic Versioning Format
     );
     $payload = array(
         'webCheckoutDetails' => array(
@@ -326,6 +335,9 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
         'region'        => 'US',
         'sandbox'       => true,
         'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
+        'integrator_version' => '1.2.3',            // (optional) Solution Provider Plugin Version in Semantic Versioning Format
+        'platform_version'   => '0.0.4'            // (optional) Solution Provider Platform Version in Semantic Versioning Format
     );
     $payload = array(
         'webCheckoutDetails' => array(
@@ -366,6 +378,9 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
         'region'        => 'US',
         'sandbox'       => true,
         'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
+        'integrator_version' => '1.2.3',            // (optional) Solution Provider Plugin Version in Semantic Versioning Format
+        'platform_version'   => '0.0.4'            // (optional) Solution Provider Platform Version in Semantic Versioning Format
     );
 
     try {
@@ -417,6 +432,9 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
         'region'        => 'US',
         'sandbox'       => true,
         'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
+        'integrator_version' => '1.2.3',            // (optional) Solution Provider Plugin Version in Semantic Versioning Format
+        'platform_version'   => '0.0.4'            // (optional) Solution Provider Platform Version in Semantic Versioning Format
     );
 
     $payload = array(
@@ -466,6 +484,9 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
         'region'        => 'US',
         'sandbox'       => true,
         'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
+        'integrator_version' => '1.2.3',            // (optional) Solution Provider Plugin Version in Semantic Versioning Format
+        'platform_version'   => '0.0.4'            // (optional) Solution Provider Platform Version in Semantic Versioning Format
     );
 
     $payload = array(
@@ -649,8 +670,8 @@ Example call to createSignature function with values:
     );
 
     $requestPayload = array(
-        'reportType' => '_GET_FLAT_FILE_OFFAMAZONPAYMENTS_ORDER_REFERENCE_DATA_',
-        'processingStatus' => 'COMPLETED',
+        'reportTypes' => '_GET_FLAT_FILE_OFFAMAZONPAYMENTS_ORDER_REFERENCE_DATA_',
+        'processingStatuses' => 'COMPLETED',
         'pageSize' => '10'
     );
 
@@ -722,7 +743,7 @@ Example call to createSignature function with values:
     );
 
     try {
-        $reportDocumentId = "1234567890";
+        $reportDocumentId = "amzn1.tortuga.0.000000000-0000-0000-0000-000000000000.00000000000000";
         $client = new Amazon\Pay\API\Client($amazonpay_config);
         $result = $client->getReportDocument($reportDocumentId);
 

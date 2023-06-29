@@ -9,13 +9,20 @@
 
     class ClientTest extends TestCase
     {
+        const INTEGRATOR_ID = 'AXXXXXXXXXXXXX';
+        const INTEGRATOR_VERSION = '5.4.3';
+        const PLATFORM_VERSION = '2.0.7';
+
         private $configArray = array(
             //config 
             array(
                 'public_key_id' => 'ABC123DEF456XYZ789IJK000',
                 'private_key'   => 'tests/unit/unit_test_key_private.txt',
                 'sandbox'       => true,
-                'region'        => 'na'
+                'region'        => 'na',
+                'integrator_id'      => self::INTEGRATOR_ID,
+                'integrator_version' => self::INTEGRATOR_VERSION,
+                'platform_version'   => self::PLATFORM_VERSION
             ),
             //config with algorithm as a parameter
             array(
@@ -23,7 +30,11 @@
                 'private_key'   => 'tests/unit/unit_test_key_private.txt',
                 'sandbox'       => true,
                 'region'        => 'na',
-                'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2'
+                'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+                'integrator_id'      => self::INTEGRATOR_ID,
+                'integrator_version' => self::INTEGRATOR_VERSION,
+                'platform_version'   => self::PLATFORM_VERSION
+
             ),
             //config with proxy parameters
             array(
@@ -31,6 +42,9 @@
                 'private_key'   => 'tests/unit/unit_test_key_private.txt',
                 'sandbox'       => true,
                 'region'        => 'na',
+                'integrator_id'      => self::INTEGRATOR_ID,
+                'integrator_version' => self::INTEGRATOR_VERSION,
+                'platform_version'   => self::PLATFORM_VERSION,
                 'proxy' => [
                     'host' => 'proxy_host',
                     'port' => 'proxy_port',
@@ -75,6 +89,9 @@
             $this->assertEquals($this->configArray[0]['private_key'], $client->__get('private_key'));
             $this->assertEquals($this->configArray[0]['sandbox'], $client->__get('sandbox'));
             $this->assertEquals($this->configArray[0]['region'], $client->__get('region'));
+            $this->assertEquals($this->configArray[0]['integrator_id'], $client->__get('integrator_id'));
+            $this->assertEquals($this->configArray[0]['integrator_version'], $client->__get('integrator_version'));
+            $this->assertEquals($this->configArray[0]['platform_version'], $client->__get('platform_version'));
         }
 
         public function testConfigArrayWithAlgorithm()
@@ -86,6 +103,9 @@
             $this->assertEquals($this->configArray[1]['sandbox'], $client->__get('sandbox'));
             $this->assertEquals($this->configArray[1]['region'], $client->__get('region'));
             $this->assertEquals($this->configArray[1]['algorithm'], $client->__get('algorithm'));
+            $this->assertEquals($this->configArray[1]['integrator_id'], $client->__get('integrator_id'));
+            $this->assertEquals($this->configArray[1]['integrator_version'], $client->__get('integrator_version'));
+            $this->assertEquals($this->configArray[1]['platform_version'], $client->__get('platform_version'));
         }
 
         public function testConfigArrayWithProxy() {
@@ -99,6 +119,9 @@
             $this->assertEquals($this->configArray[2]['proxy']['port'], $client->__get('proxy')['port']);
             $this->assertEquals($this->configArray[2]['proxy']['username'], $client->__get('proxy')['username']);
             $this->assertEquals($this->configArray[2]['proxy']['password'], $client->__get('proxy')['password']);
+            $this->assertEquals($this->configArray[2]['integrator_id'], $client->__get('integrator_id'));
+            $this->assertEquals($this->configArray[2]['integrator_version'], $client->__get('integrator_version'));
+            $this->assertEquals($this->configArray[2]['platform_version'], $client->__get('platform_version'));
         }
 
         public function testGetCanonicalURI()
