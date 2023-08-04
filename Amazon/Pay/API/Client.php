@@ -360,10 +360,13 @@
                 'x-amz-pay-region' => $this->config['region'],
                 'x-amz-pay-sdk-type' => self::SDK_LANGUAGE,
                 'x-amz-pay-sdk-version' => self::SDK_VERSION,
-                'x-amz-pay-language-version' => PHP_VERSION,
                 'authorization' => $this->getAlgorithm() . " PublicKeyId=" . $public_key_id . ", " . $signedHeaders,
                 'user-agent' => $this->constructUserAgentHeader()
             );
+
+            if(preg_match('/^\d+.\d+.\d+/', phpversion(), $match)){
+                $headerArray['x-amz-pay-language-version'] = $match[0];
+            }
 
             if(isset($this->config['integrator_id'])){
                 $headerArray['x-amz-pay-integrator-id'] = $this->config['integrator_id'];
