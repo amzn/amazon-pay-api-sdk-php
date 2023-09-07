@@ -164,6 +164,8 @@ Please contact your Amazon Pay Account Manager before using the In-Store API cal
 * **instoreCharge**($payload, $headers = null) &#8594; POST to "$version/in-store/charge"
 * **instoreRefund**($payload, $headers = null) &#8594; POST to "$version/in-store/refund"
 
+### Amazon Checkout v2 SPC
+* **finalizeCheckoutSession**($checkoutSessionId, $payload, $headers = null) &#8594; POST to "$version/checkoutSessions/$checkoutSessionId/finalize"
 
 # Using Convenience Functions
 
@@ -943,4 +945,61 @@ Example call to createSignature function with values:
             echo $e . "\n";
         }
     ?>
+```
+## Amazon Checkout v2 SPC - finalizeCheckoutSession API
+
+```php
+<?php
+include 'vendor/autoload.php';
+require_once 'Amazon/Pay/API/Client.php';
+$amazonpay_config = array(
+    'public_key_id' => 'MY_PUBLIC_KEY_ID',
+    'private_key'   => 'keys/private.pem',
+    'region'        => 'US',
+    'sandbox'       => true,
+    'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+);
+try{
+    $payload =  array(
+        "shippingAddress" => array(
+            "name" => "Susie Smith",
+            "addressLine1" => "10 Ditka Ave",
+            "addressLine2" => "Suite 2500",
+            "city" => "Chicago",
+            "county" => null,
+            "district" => null,
+            "stateOrRegion" => "IL",
+            "postalCode" => "60602",
+            "countryCode" => "US",
+            "phoneNumber" => "800-000-0000"
+        ),
+        "billingAddress" => null,
+        "chargeAmount" => array(
+            "amount" => "10",
+            "currencyCode" => "USD"
+        ),
+        "totalOrderAmount" => array(
+            "amount" => "10",
+            "currencyCode" => "USD"
+        ),
+        "paymentIntent" => "Confirm",
+        "canHandlePendingAuthorization" => "false"
+    );
+    $headers = array('x-amz-pay-Idempotency-Key' => uniqid());
+    $client = new Amazon\Pay\API\Client($amazonpay_config);
+    $checkoutSessionId = "your-checkout-session-id";
+    $result = $client->finalizeCheckoutSession($checkoutSessionId,$payload, $headers);
+if ($result['status'] === 200) {
+    // success
+    $response = $result['response'];
+    echo $response;
+} else {
+    // check the error
+    echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+}
+} catch (\Exception $e) {
+// handle the exception
+echo $e . "\n";
+}
+?>
 ```

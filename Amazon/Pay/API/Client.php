@@ -11,7 +11,7 @@
  
     class Client implements ClientInterface, ReportingClientInterface
     {
-        const SDK_VERSION = '2.6.2';
+        const SDK_VERSION = '2.6.3';
         const SDK_LANGUAGE = 'PHP';
         const HASH_ALGORITHM = 'sha256';
         const API_VERSION = 'v2';
@@ -713,5 +713,12 @@
             return $this->apiCall('DELETE', self::API_VERSION . '/report-schedules/' . $reportScheduleId, null, $headers);
         }
 
+        /*
+        * FinalizeCheckoutSession API which enables Pay to validate payment critical attributes and also update book-keeping attributes present in merchantMetadata 
+        */
+        public function finalizeCheckoutSession($checkoutSessionId, $payload, $headers = null)
+        {
+            return $this->apicall('POST', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId . '/finalize', $payload , $headers);
+        }
 
     }

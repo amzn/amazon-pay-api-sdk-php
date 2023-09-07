@@ -1,3 +1,7 @@
+### Version 2.6.3 - September 2023
+* Introducing new API called finalizeCheckoutSession which validates critical attributes in merchantMetadata then processes payment. Use this API to process payments for JavaScript-based integrations. 
+*  Corrected README.md file related to finalizeCheckoutSession API.
+
 ### Version 2.6.2 - June 2023
 * Added optional headers to APIs. These are intended to be used by solution providers to send their platform/plugin id’s and versions.
 * Corrected README.md file related to Reporting APIs.

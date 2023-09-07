@@ -257,5 +257,16 @@
          * @optional headers - [indexed array of string key-value pairs]
          */
         public function apiCall($method, $urlFragment, $payload, $headers = null);
-  
+
+
+        // ----------------------------------- Single Page Checkout -----------------------------------
+
+        /*
+        *
+        * FinalizeCheckoutSession API which enables Pay to validate payment critical attributes and also update book-keeping attributes present in merchantMetadata 
+        * @param checkoutSessionId - [String] Checkout Session identifier
+        * @param $payload [String in JSON format] or [Array]
+        */
+
+        public function finalizeCheckoutSession($checkoutSessionId, $payload, $headers = null);
     }
