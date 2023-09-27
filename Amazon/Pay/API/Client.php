@@ -9,12 +9,13 @@
     require_once 'ReportingClientInterface.php';
     require_once 'HttpCurl.php';
  
-    class Client implements ClientInterface, ReportingClientInterface
+    class Client implements ClientInterface, ReportingClientInterface, MerchantOnboardingClientInterface
     {
-        const SDK_VERSION = '2.6.3';
+        const SDK_VERSION = '2.6.4';
         const SDK_LANGUAGE = 'PHP';
         const HASH_ALGORITHM = 'sha256';
         const API_VERSION = 'v2';
+        const ACCOUNT_MANAGEMENT = '/merchantAccounts';
         
         private $config = array();
 
@@ -721,4 +722,20 @@
             return $this->apicall('POST', self::API_VERSION . '/checkoutSessions/' . $checkoutSessionId . '/finalize', $payload , $headers);
         }
 
+        // ----------------------------------- Merchant Onboarding & Account Management APIs -----------------------------------
+
+        public function registerAmazonPayAccount($payload, $headers = null)
+        {
+            return $this->apiCall('POST', self::API_VERSION . self::ACCOUNT_MANAGEMENT, $payload, $headers);
+        }
+
+        public function updateAmazonPayAccount($merchantAccountId, $payload, $headers = null)
+        {
+            return $this->apiCall('PATCH', self::API_VERSION . self::ACCOUNT_MANAGEMENT . '/' . $merchantAccountId, $payload, $headers);
+        }
+
+        public function deleteAmazonPayAccount($merchantAccountId, $headers = null)
+        {
+            return $this->apiCall('DELETE', self::API_VERSION . self::ACCOUNT_MANAGEMENT . '/' . $merchantAccountId, null, $headers);
+        }
     }

@@ -167,6 +167,11 @@ Please contact your Amazon Pay Account Manager before using the In-Store API cal
 ### Amazon Checkout v2 SPC
 * **finalizeCheckoutSession**($checkoutSessionId, $payload, $headers = null) &#8594; POST to "$version/checkoutSessions/$checkoutSessionId/finalize"
 
+### Amazon Checkout v2 Merchant Onboarding & Account Management object
+* **registerAmazonPayAccount**($payload, $headers = null) &#8594; POST to "$version/merchantAccounts"
+* **updateAmazonPayAccount**($merchantAccountId, $payload, $headers = null) &#8594; PATCH to "$version/merchantAccounts/$merchantAccountId"
+* **deleteAmazonPayAccount**($merchantAccountId, $headers = null) &#8594; DELETE to "$version/merchantAccounts/$merchantAccountId"
+
 # Using Convenience Functions
 
 Four quick steps are needed to make an API call:
@@ -332,9 +337,9 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
     include 'vendor/autoload.php';
 
     $amazonpay_config = array(
-        'public_key_id' => 'MY_PUBLIC_KEY_ID',
-        'private_key'   => 'keys/private.pem',
-        'region'        => 'US',
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',  // Path to RSA Private Key (or a string representation)
+        'region'        => 'YOUR_REGION_CODE',
         'sandbox'       => true,
         'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
         'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
@@ -375,9 +380,9 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
     include 'vendor/autoload.php';
 
     $amazonpay_config = array(
-        'public_key_id' => 'MY_PUBLIC_KEY_ID',
-        'private_key'   => 'keys/private.pem',
-        'region'        => 'US',
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',  // Path to RSA Private Key (or a string representation)
+        'region'        => 'YOUR_REGION_CODE',
         'sandbox'       => true,
         'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
         'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
@@ -429,9 +434,9 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
     include 'vendor/autoload.php';
 
     $amazonpay_config = array(
-        'public_key_id' => 'MY_PUBLIC_KEY_ID',
-        'private_key'   => 'keys/private.pem',
-        'region'        => 'US',
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',  // Path to RSA Private Key (or a string representation)
+        'region'        => 'YOUR_REGION_CODE',
         'sandbox'       => true,
         'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
         'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
@@ -474,16 +479,280 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
     ?>
 ```
 
-## Amazon Checkout v2 - Capture Charge
+## Amazon Checkout v2 - Complete Checkout Session API
+
+```php
+<?php
+    include 'vendor/autoload.php';
+    
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',  // Path to RSA Private Key (or a string representation)
+        'region'        => 'YOUR_REGION_CODE',
+        'sandbox'       => true,
+        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
+        'integrator_version' => '1.2.3',            // (optional) Solution Provider Plugin Version in Semantic Versioning Format
+        'platform_version'   => '0.0.4'            // (optional) Solution Provider Platform Version in Semantic Versioning Format
+    );
+    
+    $payload = array(
+        'chargeAmount' => array(
+            'amount' => '14.00',
+            'currencyCode' => 'USD'
+        )
+    );
+    
+    try {
+        $checkoutSessionId = '00000000-0000-0000-0000-000000000000';
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->completeCheckoutSession($checkoutSessionId, $payload);
+        
+        if ($result['status'] === 202) {
+            // Charge Permission is in AuthorizationInitiated state
+            $response = json_decode($result['response'], true);
+            $checkoutSessionState = $response['statusDetails']['state'];
+            $chargeId = $response['chargeId'];
+            $chargePermissionId = $response['chargePermissionId'];
+        } 
+        else if ($result['status'] === 200) {
+            $response = json_decode($result['response'], true);
+            $checkoutSessionState = $response['statusDetails']['state'];
+            $chargePermissionId = $response['chargePermissionId'];
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+    } catch (Exception $e) {
+        // handle the exception
+        echo $e;
+    }
+?>
+```
+
+## Amazon Checkout v2 - Get Charge Permission API
+
+```php
+<?php
+    include 'vendor/autoload.php';
+    
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',  // Path to RSA Private Key (or a string representation)
+        'region'        => 'YOUR_REGION_CODE',
+        'sandbox'       => true,
+        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
+        'integrator_version' => '1.2.3',            // (optional) Solution Provider Plugin Version in Semantic Versioning Format
+        'platform_version'   => '0.0.4'            // (optional) Solution Provider Platform Version in Semantic Versioning Format
+    );
+
+    try {
+        $chargePermissionId = 'S01-0000000-0000000';
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->getChargePermission($chargePermissionId);
+        
+        if ($result['status'] === 200) {
+            $response = json_decode($result['response'], true);
+            $chargePermissionState = $response['statusDetails']['state'];
+
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'];
+        }
+    } catch (Exception $e) {
+        // handle the exception
+        echo $e;
+    }
+?>
+```
+
+## Amazon Checkout v2 - Update Charge Permission API
+
+```php
+<?php
+    include 'vendor/autoload.php';
+    
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',  // Path to RSA Private Key (or a string representation)
+        'region'        => 'YOUR_REGION_CODE',
+        'sandbox'       => true,
+        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
+        'integrator_version' => '1.2.3',            // (optional) Solution Provider Plugin Version in Semantic Versioning Format
+        'platform_version'   => '0.0.4'            // (optional) Solution Provider Platform Version in Semantic Versioning Format
+    );
+
+    $payload = array(
+        'merchantMetadata' => array(
+            'merchantReferenceId' => '32-41-323141-32',
+            'merchantStoreName' => 'AmazonTestStoreFront',
+            'noteToBuyer' => 'Some Note to buyer',
+            'customInformation' => ''   
+        )
+    );
+
+    try {
+        $chargePermissionId = 'S01-0000000-0000000';
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->updateChargePermission($chargePermissionId, $payload);
+        
+        if ($result['status'] === 200) {
+            $response = json_decode($result['response'], true);
+            
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'];
+        }
+    } catch (Exception $e) {
+        // handle the exception
+        echo $e;
+    }
+?>
+```
+
+## Amazon Checkout v2 - Close Charge Permission API
+
+```php
+<?php
+    include 'vendor/autoload.php';
+    
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',  // Path to RSA Private Key (or a string representation)
+        'region'        => 'YOUR_REGION_CODE',
+        'sandbox'       => true,
+        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
+        'integrator_version' => '1.2.3',            // (optional) Solution Provider Plugin Version in Semantic Versioning Format
+        'platform_version'   => '0.0.4'            // (optional) Solution Provider Platform Version in Semantic Versioning Format
+    );
+
+    $payload = array(
+        'closureReason' => 'No more charges required',
+        'cancelPendingCharges' => false
+    );
+
+    try {
+        $chargePermissionId = 'S01-0000000-0000000';
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->closeChargePermission($chargePermissionId, $payload);
+        
+        if ($result['status'] === 200) {
+            $response = json_decode($result['response'], true);
+            $chargePermissionState = $response['statusDetails']['state'];
+            
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'];
+        }
+    } catch (Exception $e) {
+        // handle the exception
+        echo $e;
+    }
+?>
+```
+
+## Amazon Checkout v2 - Create Charge API
+
+```php
+<?php
+
+    include 'vendor/autoload.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem', // Path to RSA Private Key (or a string representation)
+        'region'        => 'YOUR_REGION_CODE',
+        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'sandbox'       => true,
+        'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
+        'integrator_version' => '1.2.3',            // (optional) Solution Provider Plugin Version in Semantic Versioning Format
+        'platform_version'   => '0.0.4'            // (optional) Solution Provider Platform Version in Semantic Versioning Format
+    );
+        
+    $payload = array(
+        'chargePermissionId' => 'S01-0000000-0000000',
+        'chargeAmount' => array(
+            'amount' => '14.00',
+            'currencyCode' => 'USD'
+        ),
+        'captureNow' => true,
+        'softDescriptor' => 'Descriptor',
+        'canHandlePendingAuthorization' => false 
+    );
+
+    $headers = array('x-amz-pay-Idempotency-Key' => uniqid());
+
+    try {
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->createCharge($payload, $headers);
+        
+        if ($result['status'] === 201) {
+            $response = json_decode($result['response'], true);
+            $chargeState = $response['statusDetails']['state'];
+            $chargeId = $response['chargeId'];
+
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'];
+        }
+    } catch (Exception $e) {
+        // handle the exception
+        echo $e;
+    }
+?>
+```
+
+## Amazon Checkout v2 - Get Charge API
+
+```php
+<?php
+
+    include 'vendor/autoload.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem', // Path to RSA Private Key (or a string representation)
+        'region'        => 'YOUR_REGION_CODE',
+        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'sandbox'       => true,
+        'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
+        'integrator_version' => '1.2.3',            // (optional) Solution Provider Plugin Version in Semantic Versioning Format
+        'platform_version'   => '0.0.4'            // (optional) Solution Provider Platform Version in Semantic Versioning Format
+    );
+        
+    try {
+        $chargeId = 'S01-0000000-0000000-C000000';
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->getCharge($chargeId);
+        
+        if ($result['status'] === 200) {
+            $response = json_decode($result['response'], true);
+            $chargeState = $response['statusDetails']['state'];
+
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'];
+        }
+    } catch (Exception $e) {
+        // handle the exception
+        echo $e;
+    }
+?>
+```
+
+## Amazon Checkout v2 - Capture Charge API
 
 ```php
     <?php
     include 'vendor/autoload.php';
 
     $amazonpay_config = array(
-        'public_key_id' => 'MY_PUBLIC_KEY_ID',
-        'private_key'   => 'keys/private.pem',
-        'region'        => 'US',
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',  // Path to RSA Private Key (or a string representation)
+        'region'        => 'YOUR_REGION_CODE',
         'sandbox'       => true,
         'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
         'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
@@ -520,6 +789,176 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
         echo $e . "\n";
     }
     ?>
+```
+
+## Amazon Checkout v2 - Cancel Charge API
+
+```php
+<?php 
+
+    include 'vendor/autoload.php';
+    
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem', // Path to RSA Private Key (or a string representation)
+        'region'        => 'YOUR_REGION_CODE',
+        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'sandbox'       => true,
+        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
+        'integrator_version' => '1.2.3',            // (optional) Solution Provider Plugin Version in Semantic Versioning Format
+        'platform_version'   => '0.0.4'            // (optional) Solution Provider Platform Version in Semantic Versioning Format
+    );  
+
+    $payload = array(
+        'cancellationReason' => 'REASON DESCRIPTION'
+    );
+
+    try {
+        $chargeId = 'S01-0000000-0000000-C000000';
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->cancelCharge($chargeId, $payload);
+        
+        if ($result['status'] === 200) {
+            $response = json_decode($result['response'], true);
+            $chargeState = $response['statusDetails']['state'];
+            
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'];
+        }
+    } catch (Exception $e) {
+        // handle the exception
+        echo $e;
+    }
+?>
+```
+
+## Amazon Checkout v2 - Create Refund API
+
+```php
+<?php
+
+    include 'vendor/autoload.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem', // Path to RSA Private Key (or a string representation)
+        'region'        => 'YOUR_REGION_CODE',
+        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'sandbox'       => true,
+        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
+        'integrator_version' => '1.2.3',            // (optional) Solution Provider Plugin Version in Semantic Versioning Format
+        'platform_version'   => '0.0.4'            // (optional) Solution Provider Platform Version in Semantic Versioning Format
+    );
+        
+    $payload = array(
+        'chargeId' => 'S01-0000000-0000000-C000000',
+        'refundAmount' => array(
+            'amount' => '14.00',
+            'currencyCode' => 'USD'
+        ),
+        'softDescriptor' => 'Descriptor'
+    );
+
+    $headers = array('x-amz-pay-Idempotency-Key' => uniqid());
+
+    try {
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->createRefund($payload, $headers);
+        
+        if ($result['status'] === 201) {
+            $response = json_decode($result['response'], true);
+            $refundState = $response['statusDetails']['state'];
+            $refundId = $response['refundId'];
+
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'];
+        }
+    } catch (Exception $e) {
+        // handle the exception
+        echo $e;
+    }
+?>
+```
+
+## Amazon Checkout v2 - Get Refund API
+
+```php
+<?php
+
+    include 'vendor/autoload.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem', // Path to RSA Private Key (or a string representation)
+        'region'        => 'YOUR_REGION_CODE',
+        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'sandbox'       => true,
+        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
+        'integrator_version' => '1.2.3',            // (optional) Solution Provider Plugin Version in Semantic Versioning Format
+        'platform_version'   => '0.0.4'            // (optional) Solution Provider Platform Version in Semantic Versioning Format
+    );
+        
+    try {
+        $refundId = 'S01-0000000-0000000-R000000'
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->getRefund($refundId);
+        
+        if ($result['status'] === 200) {
+            $response = json_decode($result['response'], true);
+            $chargeState = $response['statusDetails']['state'];
+
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'];
+        }
+    } catch (Exception $e) {
+        // handle the exception
+        echo $e;
+    }
+?>
+```
+
+## Amazon Checkout v2 - Get Buyer API
+
+```php
+<?php
+    include 'vendor/autoload.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem', // Path to RSA Private Key (or a string representation)
+        'region'        => 'YOUR_REGION_CODE', 
+        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'sandbox'       => true,
+        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
+        'integrator_version' => '1.2.3',            // (optional) Solution Provider Plugin Version in Semantic Versioning Format
+        'platform_version'   => '0.0.4'            // (optional) Solution Provider Platform Version in Semantic Versioning Format
+    );
+            
+    try {
+        $buyerToken = 'BUYER_TOKEN';
+        
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->getBuyer($buyerToken);
+            
+        if ($result['status'] === 200) {
+            $response = json_decode($result['response'], true);
+
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'];
+        }
+    } catch (Exception $e) {
+        // handle the exception
+        echo $e;
+    }
+?>
 ```
 
 # Generate Button Signature (helper function)
