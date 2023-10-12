@@ -27,7 +27,7 @@
    },
    "require": {
       "ext-curl": "*",
-      "php": ">=5.5.0",
+      "php": ">=5.6.1",
       "phpseclib/phpseclib": "~3.0"
    },
    "require-dev": {
