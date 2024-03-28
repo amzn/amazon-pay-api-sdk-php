@@ -1,3 +1,6 @@
+### Version 2.6.5 - March 2024
+* Avoid calling the php_uname function if it's disabled in the php.ini configuration
+
 ### Version 2.6.4 - September 2023
 * Introducing new Merchant Onboarding & Account Management APIs, which allows our partners to onboard merchants programatically and as part of account management offer them creation, updation and deletion/dissociation capability.
 * Added the Sample Code snippets for the Charge APIs, Charge Permission APIs and Refund APIs.

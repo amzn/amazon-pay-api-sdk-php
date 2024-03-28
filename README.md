@@ -7,9 +7,9 @@ If you need to make an Amazon Pay API call that uses the mws.amazonservices.com|
 
 ## Requirements
 
-* PHP 5.5 or higher, but highly recommended to use only the latest PHP version, and update often, to ensure current security fixes are applied
+* PHP 5.6.1 or higher, but highly recommended to use only the latest PHP version, and update often, to ensure current security fixes are applied
 * Curl 7.18 or higher
-* phpseclib 2.0
+* phpseclib 3.0
 
 ## SDK Installation
 
