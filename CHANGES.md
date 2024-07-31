@@ -1,3 +1,6 @@
+### Version 2.6.6 - July 2024
+* Introducing new Account Management APIs that allow partners to programmatically onboard merchants onto the Amazon Pay.
+
 ### Version 2.6.5 - March 2024
 * Avoid calling the php_uname function if it's disabled in the php.ini configuration
 

@@ -9,13 +9,14 @@
     require_once 'ReportingClientInterface.php';
     require_once 'HttpCurl.php';
  
-    class Client implements ClientInterface, ReportingClientInterface, MerchantOnboardingClientInterface
+    class Client implements ClientInterface, ReportingClientInterface, MerchantOnboardingClientInterface, AccountManagementClientInterface
     {
-        const SDK_VERSION = '2.6.5';
+        const SDK_VERSION = '2.6.6';
         const SDK_LANGUAGE = 'PHP';
         const HASH_ALGORITHM = 'sha256';
         const API_VERSION = 'v2';
         const ACCOUNT_MANAGEMENT = '/merchantAccounts';
+        const CLAIM = '/claim';
         
         private $config = array();
 
@@ -764,5 +765,22 @@
         public function deleteAmazonPayAccount($merchantAccountId, $headers = null)
         {
             return $this->apiCall('DELETE', self::API_VERSION . self::ACCOUNT_MANAGEMENT . '/' . $merchantAccountId, null, $headers);
+        }
+
+        // ----------------------------------- Account Management APIs -----------------------------------
+
+        public function createMerchantAccount($payload, $headers)
+        {
+            return $this->apiCall('POST', self::API_VERSION . self::ACCOUNT_MANAGEMENT, $payload, $headers);
+        }
+
+        public function updateMerchantAccount($merchantAccountId, $payload, $headers)
+        {
+            return $this->apiCall('PATCH', self::API_VERSION . self::ACCOUNT_MANAGEMENT . '/' . $merchantAccountId, $payload, $headers);
+        }
+
+        public function claimMerchantAccount($merchantAccountId, $payload, $headers = null)
+        {
+            return $this->apiCall('POST', self::API_VERSION . self::ACCOUNT_MANAGEMENT . '/' . $merchantAccountId . self::CLAIM, $payload, $headers);
         }
     }

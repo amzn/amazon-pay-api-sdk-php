@@ -172,6 +172,11 @@ Please contact your Amazon Pay Account Manager before using the In-Store API cal
 * **updateAmazonPayAccount**($merchantAccountId, $payload, $headers = null) &#8594; PATCH to "$version/merchantAccounts/$merchantAccountId"
 * **deleteAmazonPayAccount**($merchantAccountId, $headers = null) &#8594; DELETE to "$version/merchantAccounts/$merchantAccountId"
 
+### Amazon Checkout v2 Account Management APIs
+* **createMerchantAccount**($payload, $headers) &#8594; POST to "$version/merchantAccounts"
+* **updateMerchantAccount**($merchantAccountId, $payload, $headers) &#8594; PATCH to "$version/merchantAccounts/$merchantAccountId"
+* **claimMerchantAccount**($merchantAccountId, $payload, $headers) &#8594; POST to "$version/merchantAccounts/$merchantAccountId/claim"
+
 # Using Convenience Functions
 
 Four quick steps are needed to make an API call:
@@ -1440,5 +1445,289 @@ if ($result['status'] === 200) {
 // handle the exception
 echo $e . "\n";
 }
+?>
+```
+# Sample codes for Account Management APIs
+For more details related to Account Management APIs, please refer to this [Integration Guide](https://developer.amazon.com/docs/amazon-pay-registration/jp-merchant-onboarding-and-account-management-APIs.html).
+
+## Amazon Checkout v2 Account Management APIs - createMerchantAccount API
+
+```php
+<?php
+    include 'vendor/autoload.php';
+    require_once 'Amazon/Pay/API/Client.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'JP',
+        'algorithm'      => 'AMZN-PAY-RSASSA-PSS-V2'
+    );
+
+    try {
+
+        $payload = array(
+            "uniqueReferenceId" => "Unique_Reference_Id",       // Mandatory
+            "ledgerCurrency" => "JPY",
+            "businessInfo" => array(
+                "email" => "abhi@abc.com",
+                "businessType" => "CORPORATE",
+                "businessLegalName" => "密林コーヒー",
+                "businessCategory" => "Beauty",
+                "businessAddress" => array(
+                    "addressLine1" => "扇町４丁目５－１",
+                    "addressLine2" => "フルフィルメントセンタービル",
+                    "city" => "小田原市",
+                    "stateOrRegion" => "神奈川県",
+                    "postalCode" => "250-0001",
+                    "countryCode" => "JP",
+                    "phoneNumber" => array(
+                        "countryCode" => "81",
+                        "number" => "2062062061"
+                    )
+                ),
+                "businessDisplayName" => "Abhi's Cafe",
+                "annualSalesVolume" => array(
+                    "amount" => "100000",
+                    "currencyCode" => "JPY"
+                ),
+                "countryOfEstablishment" => "JP",
+                "customerSupportInformation" => array(
+                    "customerSupportEmail" => "test.merchant_abhi@abc.com",
+                    "customerSupportPhoneNumber" => array(
+                        "countryCode" => "1",
+                        "number" => "1234567",
+                        "extension" => "123"
+                    )
+                )
+            ),      // Mandatory
+            "beneficiaryOwners" => array(
+                array(
+                    "personId" => "AO1",
+                    "personFullName" => "Abhishek Kumar",
+                    "residentialAddress" => array(
+                        "addressLine1" => "扇町４丁目５－１",
+                        "addressLine2" => "フルフィルメントセンタービル",
+                        "city" => "小田原市",
+                        "stateOrRegion" => "神奈川県",
+                        "postalCode" => "250-0001",
+                        "countryCode" => "JP",
+                        "phoneNumber" => array(
+                            "countryCode" => "81",
+                            "number" => "2062062061"
+                        )
+                    )
+                ),
+                array(
+                    "personId" => "AO2",
+                    "personFullName" => "Rufus1 Rufus1",
+                    "residentialAddress" => array(
+                        "addressLine1" => "扇町４丁目５－１",
+                        "addressLine2" => "フルフィルメントセンタービル",
+                        "city" => "小田原市",
+                        "stateOrRegion" => "神奈川県",
+                        "postalCode" => "250-0001",
+                        "countryCode" => "JP",
+                        "phoneNumber" => array(
+                            "countryCode" => "81",
+                            "number" => "2062062061"
+                        )
+                    )
+                )
+            ),      // Mandatory
+            "primaryContactPerson" => array(
+                "personFullName" => "Abhishek Kumar"
+            ),      // Optional
+            "integrationInfo" => array(
+                "ipnEndpointUrls" => array(
+                    "https://yourdomainname.com/ipnendpoint1",
+                    "https://yourdomainname.com/ipnendpoint2"
+                )
+            ),       // Optionals
+            "stores" => array(
+                array(
+                    "domainUrls" => array(
+                        "http://www.yourdomainname.com"
+                    ),
+                    "storeName" => "Rufus's Cafe",
+                    "privacyPolicyUrl" => "http://www.yourdomainname.com/privacy",
+                    "storeStatus" => array(
+                        "state" => "Active",
+                        "reasonCode" => null
+                    )
+                )
+            ),      // Mandatory
+            "merchantStatus" => array(
+                "statusProvider" => "Ayden",
+                "state" => "ACTIVE",
+                "reasonCode" => null
+            )       // Mandatory
+        );
+
+        $headers = array('x-amz-pay-Idempotency-Key' => uniqid());
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->createMerchantAccount($payload, $headers);
+        print_r($result);
+
+        if ($result['status'] === 201) {
+            // success
+            $response = $result['response'];
+            print_r($response);
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+    } catch (\Exception $e) {
+        // handle the exception
+        echo $e . "\n";
+    }
+?>
+```
+
+## Amazon Checkout v2 Account Management APIs - updateMerchantAccount API
+
+```php
+<?php
+    include 'vendor/autoload.php';
+    require_once 'Amazon/Pay/API/Client.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'JP',
+        'algorithm'      => 'AMZN-PAY-RSASSA-PSS-V2'
+    );
+
+    try {
+
+        $payload = array(
+            "uniqueReferenceId" => "String",            // Mandatory
+            "ownerAccountId" => "String",               // Optional
+            "businessInfo" => array(
+                "email" => "String",                    // Mandatory
+                "businessCategory" => "ENUM",           // Mandatory
+                "countryOfEstablishment" => "JP",       // Mandatory (JP for Japan)
+                "businessType" => "ENUM",               // Mandatory (e.g., Corporate)
+                "businessLegalName" => "String",        // Mandatory
+                "businessAddress" => array(
+                    "addressLine1" => "String",          // Mandatory
+                    "addressLine2" => "String",          // Optional
+                    "city" => "String",                  // Optional
+                    "stateOrRegion" => "String",         // Optional
+                    "postalCode" => "String",            // Mandatory
+                    "countryCode" => "String"            // Mandatory
+                ),
+                "businessDisplayName" => "String",       // Mandatory
+                "customerSupportInformation" => array(
+                    "customerSupportEmail" => "String",  // Optional
+                    "customerSupportPhoneNumber" => array(
+                        "countryCode" => "String",        // Mandatory
+                        "number" => "String",             // Mandatory
+                        "extension" => "String"           // Optional
+                    )
+                ),
+                "annualSalesVolume" => array(
+                    "amount" => "String",                  // Mandatory
+                    "currencyCode" => "String"             // Optional (ISO 4217)
+                )   // Optional
+            ),
+            "primaryContactPerson" => array(
+                "personFullName" => "String",              // Mandatory
+                "residentialAddress" => array(
+                    "addressLine1" => "String",            // Mandatory
+                    "addressLine2" => "String",            // Optional
+                    "city" => "String",                    // Optional
+                    "stateOrRegion" => "String",           // Optional
+                    "postalCode" => "String",              // Mandatory
+                    "countryCode" => "String"              // Mandatory
+                )   // Optional
+            ),
+            "beneficiaryOwners" => array(
+                array(
+                    "personFullName" => "String",          // Mandatory
+                    "residentialAddress" => array(
+                        "addressLine1" => "String",        // Mandatory
+                        "addressLine2" => "String",        // Optional
+                        "city" => "String",                // Optional
+                        "stateOrRegion" => "String",       // Optional
+                        "postalCode" => "String",          // Mandatory
+                        "countryCode" => "String"          // Mandatory
+                    )   // Optional
+                )
+            ),  // Mandatory
+            "defaultStore" => array(
+                "domainUrls" => array("String"),          // Mandatory
+                "storeName" => "String",                  // Optional
+                "privacyPolicyUrl" => "String",           // Optional
+                "storeStatus" => array(
+                    "state" => "ENUM",                    // Mandatory
+                    "reasonCode" => "ENUM"                // Optional
+                )   // Optional
+            ),
+            "integrationInfo" => array(
+                "ipnEndpointUrl" => array("String")      // Optional
+            ),
+            "merchantStatus" => array(
+                "statusProvider" => "String",            // Optional (Mandatory if state is Active)
+                "state" => "ENUM",                       // Mandatory
+                "reasonCode" => "ENUM"                   // Optional
+            )
+        );
+
+        $headers = array('x-amz-pay-authtoken' => 'other_merchant_super_secret_token');         // Mandatory
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $merchantAccountId = "YOUR_MERCHANT_ID";
+        $result = $client->updateMerchantAccount($merchantAccountId, $payload, $headers);
+
+        if ($result['status'] === 200) {
+            // success
+            $response = $result['response'];
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+    } catch (\Exception $e) {
+        // handle the exception
+        echo $e . "\n";
+    }
+?>
+```
+
+## Amazon Checkout v2 Account Management APIs - claimMerchantAccount API
+
+```php
+<?php
+    include 'vendor/autoload.php';
+    require_once 'Amazon/Pay/API/Client.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'JP',
+        'algorithm'      => 'AMZN-PAY-RSASSA-PSS-V2'
+    );
+
+    try {
+
+        $payload = array(
+            "uniqueReferenceId" => "Unique_Reference_Id"    // Mandatory
+        );
+
+        $headers = array('x-amz-pay-Idempotency-Key' => uniqid());
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $merchantAccountId = "YOUR_MERCHANT_ID";
+        $result = $client->claimMerchantAccount($merchantAccountId, $payload, $headers = null);
+
+        if ($result['status'] === 303) {
+            // success
+            $response = $result['response'];
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+    } catch (\Exception $e) {
+        // handle the exception
+        echo $e . "\n";
+    }
 ?>
 ```
