@@ -87,6 +87,14 @@
          * @optional headers - [array] - optional x-amz-pay-authtoken
          */
         public function cancelReportSchedule($reportScheduleId, $headers = null);
- 
+
+        /* Amazon Checkout v2 Reporting APIs - Get Disbursements
+         *
+         * The getDisbursements operation is used to receive disbursement details based on a date range of the settlement date specified in the request.
+         *
+         * @param queryParameters - [multi-dimension array with key and values]
+         * @optional headers - [array] - optional x-amz-pay-authtoken
+         */
+        public function getDisbursements($queryParameters, $headers = null);
  
     }

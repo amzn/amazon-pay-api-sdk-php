@@ -1389,7 +1389,40 @@ Example call to createSignature function with values:
             echo $e . "\n";
         }
     ?>
+
 ```
+## Amazon Checkout v2 Reporting APIs - GetDisbursements API
+
+```php
+<?php
+include 'vendor/autoload.php';
+
+$amazonpay_config = array(
+    'public_key_id' => 'MY_PUBLIC_KEY_ID',
+    'private_key'   => 'keys/private.pem',
+    'region'        => 'US',
+    'sandbox'       => false
+);
+
+try {
+    $queryParameters = array(
+        'startTime' => '20240301T224539Z',
+        'endTime' => '20240330T230345Z',
+        'pageSize' => '10',
+        'nextToken' => ''
+    );
+
+    $headers = array('x-amz-pay-idempotency-key' => uniqid());
+    $client = new Amazon\Pay\API\Client($amazonpay_config);
+    $result = $client->getDisbursements($queryParameters, $headers);
+    print_r($result);
+} catch (\Exception $e) {
+    // handle the exception
+    echo $e . "\n";
+}
+?>
+```
+
 ## Amazon Checkout v2 SPC - finalizeCheckoutSession API
 
 ```php
@@ -1467,14 +1500,43 @@ For more details related to Account Management APIs, please refer to this [Integ
     try {
 
         $payload = array(
-            "uniqueReferenceId" => "Unique_Reference_Id",       // Mandatory
-            "ledgerCurrency" => "JPY",
-            "businessInfo" => array(
-                "email" => "abhi@abc.com",
-                "businessType" => "CORPORATE",
-                "businessLegalName" => "密林コーヒー",
-                "businessCategory" => "Beauty",
-                "businessAddress" => array(
+        "uniqueReferenceId" => "Unique_Reference_Id",       // Mandatory
+        "ledgerCurrency" => "JPY",
+        "businessInfo" => array(
+            "email" => "abhi@abc.com",
+            "businessType" => "CORPORATE",
+            "businessLegalName" => "密林コーヒー",
+            "businessCategory" => "Beauty",
+            "businessAddress" => array(
+                "addressLine1" => "扇町４丁目５－１",
+                "addressLine2" => "フルフィルメントセンタービル",
+                "city" => "小田原市",
+                "stateOrRegion" => "神奈川県",
+                "postalCode" => "250-0001",
+                "countryCode" => "JP",
+                "phoneNumber" => array(
+                    "countryCode" => "81",
+                    "number" => "2062062061"
+                )
+            ),
+            "businessDisplayName" => "Abhi's Cafe",
+            "annualSalesVolume" => array(
+                "amount" => "100000",
+                "currencyCode" => "JPY"
+            ),
+            "countryOfEstablishment" => "JP",
+            "customerSupportInformation" => array(
+                "customerSupportEmail" => "test.merchant_abhi@abc.com",
+                "customerSupportPhoneNumber" => array(
+                    "countryCode" => "1",
+                    "number" => "1234567",
+                    "extension" => "123"
+                )
+            )
+        ),
+        "beneficiaryOwners" => [array(
+                "personFullName" => "Abhishek Kumar",
+                "residentialAddress" => array(
                     "addressLine1" => "扇町４丁目５－１",
                     "addressLine2" => "フルフィルメントセンタービル",
                     "city" => "小田原市",
@@ -1485,86 +1547,36 @@ For more details related to Account Management APIs, please refer to this [Integ
                         "countryCode" => "81",
                         "number" => "2062062061"
                     )
+                )
+        )],
+        "primaryContactPerson" => array(
+            "personFullName" => "Abhishek Kumar"
+        ),
+        "integrationInfo" => array(
+            "ipnEndpointUrls" => array(
+                "https://yourdomainname.com/ipnendpoint1",
+                "https://yourdomainname.com/ipnendpoint2"
+            )
+        ),
+        "stores" => array(
+            array(
+                "domainUrls" => array(
+                    "https://yourdomainname.com"
                 ),
-                "businessDisplayName" => "Abhi's Cafe",
-                "annualSalesVolume" => array(
-                    "amount" => "100000",
-                    "currencyCode" => "JPY"
-                ),
-                "countryOfEstablishment" => "JP",
-                "customerSupportInformation" => array(
-                    "customerSupportEmail" => "test.merchant_abhi@abc.com",
-                    "customerSupportPhoneNumber" => array(
-                        "countryCode" => "1",
-                        "number" => "1234567",
-                        "extension" => "123"
-                    )
+                "storeName" => "Rufus's Cafe",
+                "privacyPolicyUrl" => "https://yourdomainname.com/privacy",
+                "storeStatus" => array(
+                    "state" => "ACTIVE",
+                    "reasonCode" => null
                 )
-            ),      // Mandatory
-            "beneficiaryOwners" => array(
-                array(
-                    "personId" => "AO1",
-                    "personFullName" => "Abhishek Kumar",
-                    "residentialAddress" => array(
-                        "addressLine1" => "扇町４丁目５－１",
-                        "addressLine2" => "フルフィルメントセンタービル",
-                        "city" => "小田原市",
-                        "stateOrRegion" => "神奈川県",
-                        "postalCode" => "250-0001",
-                        "countryCode" => "JP",
-                        "phoneNumber" => array(
-                            "countryCode" => "81",
-                            "number" => "2062062061"
-                        )
-                    )
-                ),
-                array(
-                    "personId" => "AO2",
-                    "personFullName" => "Rufus1 Rufus1",
-                    "residentialAddress" => array(
-                        "addressLine1" => "扇町４丁目５－１",
-                        "addressLine2" => "フルフィルメントセンタービル",
-                        "city" => "小田原市",
-                        "stateOrRegion" => "神奈川県",
-                        "postalCode" => "250-0001",
-                        "countryCode" => "JP",
-                        "phoneNumber" => array(
-                            "countryCode" => "81",
-                            "number" => "2062062061"
-                        )
-                    )
-                )
-            ),      // Mandatory
-            "primaryContactPerson" => array(
-                "personFullName" => "Abhishek Kumar"
-            ),      // Optional
-            "integrationInfo" => array(
-                "ipnEndpointUrls" => array(
-                    "https://yourdomainname.com/ipnendpoint1",
-                    "https://yourdomainname.com/ipnendpoint2"
-                )
-            ),       // Optionals
-            "stores" => array(
-                array(
-                    "domainUrls" => array(
-                        "http://www.yourdomainname.com"
-                    ),
-                    "storeName" => "Rufus's Cafe",
-                    "privacyPolicyUrl" => "http://www.yourdomainname.com/privacy",
-                    "storeStatus" => array(
-                        "state" => "Active",
-                        "reasonCode" => null
-                    )
-                )
-            ),      // Mandatory
-            "merchantStatus" => array(
-                "statusProvider" => "Ayden",
-                "state" => "ACTIVE",
-                "reasonCode" => null
-            )       // Mandatory
-        );
-
-        $headers = array('x-amz-pay-Idempotency-Key' => uniqid());
+            )
+        ),
+        "merchantStatus" => array(
+            "statusProvider" => "Ayden",
+            "state" => "ACTIVE",
+            "reasonCode" => null
+        )
+    );
         $client = new Amazon\Pay\API\Client($amazonpay_config);
         $result = $client->createMerchantAccount($payload, $headers);
         print_r($result);
@@ -1600,81 +1612,42 @@ For more details related to Account Management APIs, please refer to this [Integ
 
     try {
 
-        $payload = array(
-            "uniqueReferenceId" => "String",            // Mandatory
-            "ownerAccountId" => "String",               // Optional
-            "businessInfo" => array(
-                "email" => "String",                    // Mandatory
-                "businessCategory" => "ENUM",           // Mandatory
-                "countryOfEstablishment" => "JP",       // Mandatory (JP for Japan)
-                "businessType" => "ENUM",               // Mandatory (e.g., Corporate)
-                "businessLegalName" => "String",        // Mandatory
-                "businessAddress" => array(
-                    "addressLine1" => "String",          // Mandatory
-                    "addressLine2" => "String",          // Optional
-                    "city" => "String",                  // Optional
-                    "stateOrRegion" => "String",         // Optional
-                    "postalCode" => "String",            // Mandatory
-                    "countryCode" => "String"            // Mandatory
-                ),
-                "businessDisplayName" => "String",       // Mandatory
-                "customerSupportInformation" => array(
-                    "customerSupportEmail" => "String",  // Optional
-                    "customerSupportPhoneNumber" => array(
-                        "countryCode" => "String",        // Mandatory
-                        "number" => "String",             // Mandatory
-                        "extension" => "String"           // Optional
-                    )
-                ),
-                "annualSalesVolume" => array(
-                    "amount" => "String",                  // Mandatory
-                    "currencyCode" => "String"             // Optional (ISO 4217)
-                )   // Optional
-            ),
-            "primaryContactPerson" => array(
-                "personFullName" => "String",              // Mandatory
-                "residentialAddress" => array(
-                    "addressLine1" => "String",            // Mandatory
-                    "addressLine2" => "String",            // Optional
-                    "city" => "String",                    // Optional
-                    "stateOrRegion" => "String",           // Optional
-                    "postalCode" => "String",              // Mandatory
-                    "countryCode" => "String"              // Mandatory
-                )   // Optional
-            ),
-            "beneficiaryOwners" => array(
-                array(
-                    "personFullName" => "String",          // Mandatory
-                    "residentialAddress" => array(
-                        "addressLine1" => "String",        // Mandatory
-                        "addressLine2" => "String",        // Optional
-                        "city" => "String",                // Optional
-                        "stateOrRegion" => "String",       // Optional
-                        "postalCode" => "String",          // Mandatory
-                        "countryCode" => "String"          // Mandatory
-                    )   // Optional
+    $payload = array(
+        "businessInfo" => array(
+            "email" => "abhi_updated@abc.com",
+            "businessType" => "CORPORATE",
+            "businessLegalName" => "密林コーヒー",
+            "businessCategory" => "Beauty",
+            "businessAddress" => array(
+                "addressLine1" => "扇町４丁目５－１",
+                "addressLine2" => "フルフィルメントセンタービル",
+                "city" => "小田原市",
+                "stateOrRegion" => "神奈川県",
+                "postalCode" => "250-0025",
+                "countryCode" => "JP",
+                "phoneNumber" => array(
+                    "countryCode" => "81",
+                    "number" => "2062062065"
                 )
-            ),  // Mandatory
-            "defaultStore" => array(
-                "domainUrls" => array("String"),          // Mandatory
-                "storeName" => "String",                  // Optional
-                "privacyPolicyUrl" => "String",           // Optional
-                "storeStatus" => array(
-                    "state" => "ENUM",                    // Mandatory
-                    "reasonCode" => "ENUM"                // Optional
-                )   // Optional
             ),
-            "integrationInfo" => array(
-                "ipnEndpointUrl" => array("String")      // Optional
+            "businessDisplayName" => "Abhi's Golden Cafe",
+            "annualSalesVolume" => array(
+                "amount" => "500000",
+                "currencyCode" => "JPY"
             ),
-            "merchantStatus" => array(
-                "statusProvider" => "String",            // Optional (Mandatory if state is Active)
-                "state" => "ENUM",                       // Mandatory
-                "reasonCode" => "ENUM"                   // Optional
-            )
+            "countryOfEstablishment" => "JP",
+            "customerSupportInformation" => array(
+                "customerSupportEmail" => "test.merchant_abhi@abc.com",
+                "customerSupportPhoneNumber" => array(
+                    "countryCode" => "1",
+                    "number" => "9999999",
+                    "extension" => "123"
+                )
+              )
+           )
         );
 
-        $headers = array('x-amz-pay-authtoken' => 'other_merchant_super_secret_token');         // Mandatory
+        $headers = array('x-amz-pay-authtoken' => 'AUTH_TOKEN');
         $client = new Amazon\Pay\API\Client($amazonpay_config);
         $merchantAccountId = "YOUR_MERCHANT_ID";
         $result = $client->updateMerchantAccount($merchantAccountId, $payload, $headers);
@@ -1718,7 +1691,7 @@ For more details related to Account Management APIs, please refer to this [Integ
         $merchantAccountId = "YOUR_MERCHANT_ID";
         $result = $client->claimMerchantAccount($merchantAccountId, $payload, $headers = null);
 
-        if ($result['status'] === 303) {
+        if ($result['status'] === 303 || $result['status'] === 200) {
             // success
             $response = $result['response'];
         } else {

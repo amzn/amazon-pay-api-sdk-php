@@ -13,7 +13,7 @@ interface AccountManagementClientInterface
          * Provide merchant info through this API to create loginable account for your merchant partners. Client should expect either a success message or a detailed error message based on data validation and fulfillment.
          *
          * @param payload - [String in JSON format] or [array]
-         * @param headers - [array] - requires x-amz-pay-Idempotency-Key header
+         * @param headers - [indexed array of string key-value pairs]
          */
     public function createMerchantAccount($payload, $headers);
 

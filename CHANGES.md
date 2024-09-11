@@ -1,3 +1,7 @@
+### Version 2.6.7 - September 2024
+* Introducing the getDisbursements API.
+* The `getDisbursements` API enables you to retrieve disbursement details based on a specified date range for settlement dates.
+
 ### Version 2.6.6 - July 2024
 * Introducing new Account Management APIs that allow partners to programmatically onboard merchants onto the Amazon Pay.
 

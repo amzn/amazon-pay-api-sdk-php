@@ -11,12 +11,13 @@
  
     class Client implements ClientInterface, ReportingClientInterface, MerchantOnboardingClientInterface, AccountManagementClientInterface
     {
-        const SDK_VERSION = '2.6.6';
+        const SDK_VERSION = '2.6.7';
         const SDK_LANGUAGE = 'PHP';
         const HASH_ALGORITHM = 'sha256';
         const API_VERSION = 'v2';
         const ACCOUNT_MANAGEMENT = '/merchantAccounts';
         const CLAIM = '/claim';
+        const DISBURSEMENTS = '/disbursements';
         
         private $config = array();
 
@@ -740,6 +741,11 @@
         public function cancelReportSchedule($reportScheduleId, $headers = null) 
         {
             return $this->apiCall('DELETE', self::API_VERSION . '/report-schedules/' . $reportScheduleId, null, $headers);
+        }
+
+        public function getDisbursements($queryParameters, $headers = null)
+        {
+            return $this->apiCall('GET', self::API_VERSION . self::DISBURSEMENTS, null, $headers, $queryParameters);
         }
 
         /*

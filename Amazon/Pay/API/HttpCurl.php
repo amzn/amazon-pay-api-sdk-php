@@ -11,6 +11,7 @@ class HttpCurl
 
     private $curlResponseInfo = null;
     private $requestId = null;
+    private $location = null;
     private $proxyConfig;
 
     /**
@@ -30,6 +31,9 @@ class HttpCurl
                 $key = strtolower(trim($middle[0]));
                 if ($key === 'x-amz-pay-request-id') {
                     $this->requestId = trim($middle[1]);
+                }
+                if ($key === 'location') {
+                    $this->location = trim($middle[1]);
                 }
             }
         }
@@ -109,6 +113,7 @@ class HttpCurl
                     $response = array(
                         'status'     => $statusCode,
                         'method'     => $method,
+                        'location'   => $this->location,
                         'url'        => $url,
                         'headers'    => $postSignedHeaders,
                         'request'    => $payload,
