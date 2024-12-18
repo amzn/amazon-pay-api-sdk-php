@@ -92,7 +92,7 @@
 
   Billing address is a top-level node now instead of being in PaymentPreference
 * There are also non-subtle workflow changes between v1/ and v2/ as the completeCheckoutSession API call will be required now
-  before funds can be captured.  See the [API Release notes](http://amazonpaycheckoutintegrationguide.s3.amazonaws.com/amazon-pay-checkout/release-notes.html) for more details.
+  before funds can be captured.  See the [API Release notes](https://developer.amazon.com/docs/amazon-pay-checkout/release-notes.html) for more details.
 
 #### Version 1.0.0 - April 2020
 

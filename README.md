@@ -51,7 +51,7 @@ openssl rsa -in private.pem -pubout > public.pub
 The first command above generates a private key and the second line uses the private key to generate a public key.
 
 To associate the key with your account, follow the instructions here to
-[Get your Public Key ID](http://amazonpaycheckoutintegrationguide.s3.amazonaws.com/amazon-pay-checkout/get-set-up-for-integration.html#4-get-your-public-key-id).
+[Get your Public Key ID](https://developer.amazon.com/docs/amazon-pay-checkout/get-set-up-for-integration.html#5-get-your-public-key-id).
 
 ## Namespace
 
@@ -125,7 +125,7 @@ Please note that your solution provider account must have a pre-existing relatio
 * **getAuthorizationToken**($mwsAuthToken, $merchantId, $headers = null) &#8594; GET to "$version/authorizationTokens/$mwsAuthToken?merchantId=$merchantId"
 
 ## Amazon Checkout v2 API
-[API Integration Guide](https://amazonpaycheckoutintegrationguide.s3.amazonaws.com/amazon-pay-api-v2/introduction.html)
+[API Integration Guide](https://developer.amazon.com/docs/amazon-pay-api-v2/introduction.html)
 
 The $headers field is not optional for create/POST calls below because it requires, at a minimum, the x-amz-pay-idempotency-key header:
 
