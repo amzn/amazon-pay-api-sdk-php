@@ -125,6 +125,17 @@
          */
         public function createCharge($payload, $headers);
 
+        /* Amazon Checkout v2 - Update Charge
+         *
+         * The updateCharge operation is used to update the charge status of any PSP (Payment Service Provider) processed payment method (PPM) transactions.
+         * Please note that is API is supported only for PSPs (Payment Service Provider)
+         *
+         * @param chargeId - [String] - Charge identifier
+         * @param payload - [String in JSON format] or [array]
+         * @param headers - [array] - requires x-amz-pay-Idempotency-Key header; optional x-amz-pay-authtoken
+         */
+        public function updateCharge($chargeId, $payload, $headers);
+
 
         /* Amazon Checkout v2 - Get Charge
          *

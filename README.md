@@ -9,7 +9,7 @@ If you need to make an Amazon Pay API call that uses the mws.amazonservices.com|
 
 * PHP 5.6.1 or higher, but highly recommended to use only the latest PHP version, and update often, to ensure current security fixes are applied
 * Curl 7.18 or higher
-* phpseclib 3.0
+* phpseclib 3.0.34 or higher
 
 ## SDK Installation
 
@@ -133,41 +133,53 @@ The $headers field is not optional for create/POST calls below because it requir
     $headers = array('x-amz-pay-idempotency-key' => uniqid());
 ```
 
-### Amazon Checkout v2 Buyer object
+### Amazon Checkout v2 Buyer APIs
 * **getBuyer**($buyerToken, $headers = null) &#8594; GET to "$version/buyers/$buyerToken"
 
-### Amazon Checkout v2 CheckoutSession object
+### Amazon Checkout v2 CheckoutSession APIs
 * **createCheckoutSession**($payload, $headers) &#8594; POST to "$version/checkoutSessions"
 * **getCheckoutSession**($checkoutSessionId, $headers = null) &#8594; GET to "$version/checkoutSessions/$checkoutSessionId"
 * **updateCheckoutSession**($checkoutSessionId, $payload, $headers = null) &#8594; PATCH to "$version/checkoutSessions/$checkoutSessionId"
 * **completeCheckoutSession**($checkoutSessionId, $payload, $headers = null) &#8594; POST to "$version/checkoutSessions/$checkoutSessionId/complete"
 
-### Amazon Checkout v2 ChargePermission object
+### Amazon Checkout v2 ChargePermission APIs
 * **getChargePermission**($chargePermissionId, $headers = null) &#8594; GET to "$version/chargePermissions/$chargePermissionId"
 * **updateChargePermission**($chargePermissionId, $payload, $headers = null) &#8594; PATCH to "$version/chargePermissions/$chargePermissionId"
 * **closeChargePermission**($chargePermissionId, $payload, $headers = null) &#8594; DELETE to "$version/chargePermissions/$chargePermissionId/close"
 
-### Amazon Checkout v2 Charge object
+### Amazon Checkout v2 Charge APIs
 * **createCharge**($payload, $headers) &#8594; POST to "$version/charges"
 * **getCharge**($chargeId, $headers = null) &#8594; GET to "$version/charges/$chargeId"
+* **updateCharge**($chargeId, $payload, $headers) &#8594; PATCH to "$version/charges/$chargeId"
 * **captureCharge**($chargeId, $payload, $headers) &#8594; POST to "$version/charges/$chargeId/capture"
 * **cancelCharge**($chargeId, $payload, $headers = null) &#8594; DELETE to "$version/charges/$chargeId/cancel"
 
-### Amazon Checkout v2 Refund object
+### Amazon Checkout v2 Refund APIs
 * **createRefund**($payload, $headers) &#8594; POST to "$version/refunds"
 * **getRefund**($refundId, $headers = null) &#8594; GET to "$version/refunds/$refundId"
 
-## In-Store API
+### Amazon Pay v2 Reporting APIs
+* **getReports**($queryParameters = null, $headers = null) &#8594; GET to $version/reports
+* **getReportById**($reportId, $headers = null) &#8594; GET to $version/reports/&reportId
+* **getReportDocument**($reportDocumentId, $headers = null) &#8594; GET to $version/report-documents/$reportDocumentI
+* **getReportSchedules**($reportTypes = null, $headers = null) &#8594; GET to $version/report-schedules
+* **getReportScheduleById**($reportScheduleId, $headers = null) &#8594; GET to $version/report-schedules/$reportScheduleId
+* **createReport**($requestPayload, $headers = null) &#8594; POST to $version/reports
+* **createReportSchedule**($requestPayload, $headers = null) &#8594; POST to $version/report-schedules
+* **cancelReportSchedule**($reportScheduleId, $headers = null) &#8594; DELETE to $version/report-schedules/$reportScheduleId
+* **getDisbursements**($queryParameters, $headers = null) &#8594; GET to $version/disbursements
+
+## In-Store APIs
 Please contact your Amazon Pay Account Manager before using the In-Store API calls in a Production environment to obtain a copy of the In-Store Integration Guide.
 
 * **instoreMerchantScan**($payload, $headers = null) &#8594; POST to "$version/in-store/merchantScan"
 * **instoreCharge**($payload, $headers = null) &#8594; POST to "$version/in-store/charge"
 * **instoreRefund**($payload, $headers = null) &#8594; POST to "$version/in-store/refund"
 
-### Amazon Checkout v2 SPC
+### Amazon Checkout v2 SPC APIs
 * **finalizeCheckoutSession**($checkoutSessionId, $payload, $headers = null) &#8594; POST to "$version/checkoutSessions/$checkoutSessionId/finalize"
 
-### Amazon Checkout v2 Merchant Onboarding & Account Management object
+### Amazon Checkout v2 Merchant Onboarding & Account Management APIs
 * **registerAmazonPayAccount**($payload, $headers = null) &#8594; POST to "$version/merchantAccounts"
 * **updateAmazonPayAccount**($merchantAccountId, $payload, $headers = null) &#8594; PATCH to "$version/merchantAccounts/$merchantAccountId"
 * **deleteAmazonPayAccount**($merchantAccountId, $headers = null) &#8594; DELETE to "$version/merchantAccounts/$merchantAccountId"
@@ -176,6 +188,14 @@ Please contact your Amazon Pay Account Manager before using the In-Store API cal
 * **createMerchantAccount**($payload, $headers) &#8594; POST to "$version/merchantAccounts"
 * **updateMerchantAccount**($merchantAccountId, $payload, $headers) &#8594; PATCH to "$version/merchantAccounts/$merchantAccountId"
 * **claimMerchantAccount**($merchantAccountId, $payload, $headers) &#8594; POST to "$version/merchantAccounts/$merchantAccountId/claim"
+
+### Amazon Checkout v2 Dispute APIs
+* **createDispute**($payload, $headers) &#8594; POST to $version/disputes
+* **updateDispute**($disputeId, $payload, $headers = null) &#8594; PATCH to $version/disputes/$disputeId
+* **contestDispute**($disputeId, $payload, $headers = null) &#8594; POST to $version/disputes/$disputeId/contest
+
+### Amazon Checkout v2 File APIs
+* **uploadFile**($payload, $headers) &#8594; POST to $version/files
 
 # Using Convenience Functions
 
@@ -744,6 +764,54 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
     } catch (Exception $e) {
         // handle the exception
         echo $e;
+    }
+?>
+```
+
+## Amazon Checkout v2 - Update Charge API
+**Please note that is API is supported only for PSPs (Payment Service Provider)**
+
+```php
+<?php
+
+    include 'vendor/autoload.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem', // Path to RSA Private Key (or a string representation)
+        'region'        => 'YOUR_REGION_CODE',
+        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2',
+        'sandbox'       => true,
+        'integrator_id'      => 'AXXXXXXXXXXXXX',   // (optional) Solution Provider Platform Id in Amz UID Format
+        'integrator_version' => '1.2.3',            // (optional) Solution Provider Plugin Version in Semantic Versioning Format
+        'platform_version'   => '0.0.4'            // (optional) Solution Provider Platform Version in Semantic Versioning Format
+    );
+        
+    $payload = array(
+        'statusDetails' => array(
+            'state' => 'Canceled',
+            'reasonCode' => 'ExpiredUnused'
+        )
+    );
+
+    $headers = [
+        'x-amz-pay-idempotency-key' => uniqid()
+    ];
+
+    try {
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->updateCharge('S03-5774364-0521956-C066348', $payload, $headers);
+        
+        if ($result['status'] === 200) {
+            // success
+            $response = $result['response'];
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+    } catch (\Exception $e) {
+        echo $e . "\n";
+        http_response_code(500);
     }
 ?>
 ```
@@ -1412,7 +1480,7 @@ try {
         'nextToken' => ''
     );
 
-    $headers = array('x-amz-pay-idempotency-key' => uniqid());
+    $headers = array('x-amz-pay-Idempotency-Key' => uniqid());
     $client = new Amazon\Pay\API\Client($amazonpay_config);
     $result = $client->getDisbursements($queryParameters, $headers);
     print_r($result);
@@ -1701,6 +1769,205 @@ For more details related to Account Management APIs, please refer to this [Integ
     } catch (\Exception $e) {
         // handle the exception
         echo $e . "\n";
+    }
+?>
+```
+
+## Amazon Checkout v2 Dispute APIs - Create Dispute API
+
+```php
+<?php
+    include 'vendor/autoload.php';
+    require_once 'Amazon/Pay/API/Client.php';
+    use Amazon\Pay\API\Constants\DisputeFilingReason;
+
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'JP',
+        'algorithm'      => 'AMZN-PAY-RSASSA-PSS-V2'
+    );
+
+    $creationTimestamp = time(); // Equivalent to System.currentTimeMillis() / 1000L in Java
+    $merchantResponseDeadline = $creationTimestamp + (14 * 24 * 60 * 60); // Adding 14 days in seconds
+
+    $payload = [
+        "chargeId" => 'S03-XXXXXX-XXXXXX-XXXXXX',
+        "providerMetadata" => [
+            "providerDisputeId" => "AXXXXXXXXX"
+        ],
+        "disputeAmount" => [
+            "amount" => "1",
+            "currencyCode" => "JPY"
+        ],
+        "filingReason" => DisputeFilingReason::PRODUCT_NOT_RECEIVED,
+        "creationTimestamp" => $creationTimestamp,
+        "statusDetails" => [
+            "state" => "ActionRequired"
+        ],
+        "merchantResponseDeadline" => $merchantResponseDeadline
+    ];
+
+    $headers = [
+        'x-amz-pay-idempotency-key' => uniqid()
+    ];
+
+    try {
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->createDispute($payload, $headers);
+        
+        if ($result['status'] === 200) {
+            // success
+            $response = $result['response'];
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+    } catch (\Exception $e) {
+        echo $e . "\n";
+        http_response_code(500);
+    }
+?>
+```
+
+## Amazon Checkout v2 Dispute APIs - Update Dispute API
+
+```php
+<?php
+    include 'vendor/autoload.php';
+    require_once 'Amazon/Pay/API/Client.php';
+    use Amazon\Pay\API\Constants\DisputeResolution;
+    use Amazon\Pay\API\Constants\DisputeState;
+    use Amazon\Pay\API\Constants\DisputeReasonCode;
+
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'JP',
+        'algorithm'      => 'AMZN-PAY-RSASSA-PSS-V2'
+    );
+
+    $currentTimestamp = time(); 
+    $disputeId = 'DIPSUTE_ID'; 
+
+    $statusDetails = [
+        "resolution" => DisputeResolution::MERCHANT_WON,
+        "state" => DisputeState::RESOLVED,
+        "reasonCode" => DisputeReasonCode::MERCHANT_ACCEPTED_DISPUTE,
+        "reasonDescription" => "Merchant accepted the dispute request"
+    ];
+
+    $payload = [
+        "statusDetails" => $statusDetails,
+        "closureTimestamp" => $currentTimestamp
+    ];
+
+    try {
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->updateDispute($disputeId, $payload);
+        
+        if ($result['status'] === 200) {
+            // success
+            $response = $result['response'];
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+    } catch (\Exception $e) {
+        echo $e . "\n";
+        http_response_code(500);
+    }
+?>
+```
+
+## Amazon Checkout v2 Dispute APIs - Contest Dispute API
+
+```php
+<?php
+    include 'vendor/autoload.php';
+    require_once 'Amazon/Pay/API/Client.php';
+    use Amazon\Pay\API\Constants\EvidenceType;
+
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'JP',
+        'algorithm'      => 'AMZN-PAY-RSASSA-PSS-V2'
+    );
+
+    $payload = [];
+
+    $merchantEvidences[] = [
+        "evidenceType" => EvidenceType.TRACKING_NUMBER,
+        "fileId" => "FILE_ID",
+        "evidenceText" => "raw text supporting merchant evidence"
+    ];
+
+    $payload['merchantEvidences'] = $merchantEvidences;
+
+    try {
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->contestDispute('DIPSUTE_ID', $payload);
+    
+        if ($result['status'] === 200) {
+            // success
+            $response = $result['response'];
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+    } catch (\Exception $e) {
+        echo $e . "\n";
+        http_response_code(500);
+    }
+?>
+```
+
+## Amazon Checkout v2 File APIs - Upload File API
+
+```php
+<?php
+    include 'vendor/autoload.php';
+    require_once 'Amazon/Pay/API/Client.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'JP',
+        'algorithm'      => 'AMZN-PAY-RSASSA-PSS-V2'
+    );
+
+    $payload = [];
+
+    $merchantEvidences[] = [
+        "evidenceType" => EvidenceType.TRACKING_NUMBER,
+        "fileId" => "FILE_ID",
+        "evidenceText" => "raw text supporting merchant evidence"
+    ];
+
+    $payload = [
+        "type" => "jpg",
+        "purpose" => "disputeEvidence"
+    ];
+
+    $headers = [
+        'x-amz-pay-idempotency-key' => uniqid()
+    ];
+
+    try {
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->uploadFile($payload, $headers);
+        
+        if ($result['status'] === 200) {
+            // success
+            $response = $result['response'];
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+    } catch (\Exception $e) {
+        echo $e . "\n";
+        http_response_code(500);
     }
 ?>
 ```

@@ -8,16 +8,23 @@
     require_once 'ClientInterface.php';
     require_once 'ReportingClientInterface.php';
     require_once 'HttpCurl.php';
+    require_once 'MerchantOnboardingClientInterface.php';
+    require_once 'AccountManagementClientInterface.php';
+    require_once 'PaymentServiceProviderClientInterface.php';
  
-    class Client implements ClientInterface, ReportingClientInterface, MerchantOnboardingClientInterface, AccountManagementClientInterface
+    class Client implements ClientInterface, ReportingClientInterface, MerchantOnboardingClientInterface, AccountManagementClientInterface, PaymentServiceProviderClientInterface
     {
-        const SDK_VERSION = '2.6.7';
+        const SDK_VERSION = '2.6.8';
         const SDK_LANGUAGE = 'PHP';
         const HASH_ALGORITHM = 'sha256';
         const API_VERSION = 'v2';
         const ACCOUNT_MANAGEMENT = '/merchantAccounts';
         const CLAIM = '/claim';
         const DISBURSEMENTS = '/disbursements';
+        const CHARGES = '/charges';
+        const DISPUTES = '/disputes';
+        const CONTEST = '/contest';
+        const FILES = '/files';
         
         private $config = array();
 
@@ -519,7 +526,7 @@
                 // json_encode will fail if non-UTF-8 encodings are present, need to convert them to UTF-8
                 array_walk_recursive($payload, function (&$item) {
                     if (is_string($item) && mb_detect_encoding($item, 'UTF-8', true) === false) {
-                        $item = utf8_encode($item);
+                        $item = mb_convert_encoding($item, 'UTF-8');
                     }
                 });
 
@@ -659,25 +666,30 @@
 
         public function createCharge($payload, $headers)
         {
-            return $this->apiCall('POST', self::API_VERSION . '/charges', $payload, $headers);
+            return $this->apiCall('POST', self::API_VERSION . self::CHARGES, $payload, $headers);
+        }
+
+        public function updateCharge($chargeId, $payload, $headers)
+        {
+            return $this->apiCall('PATCH', self::API_VERSION . self::CHARGES . '/' . $chargeId, $payload, $headers);
         }
 
 
         public function getCharge($chargeId, $headers = null)
         {
-            return $this->apiCall('GET', self::API_VERSION . '/charges/' . $chargeId, null, $headers);
+            return $this->apiCall('GET', self::API_VERSION . self::CHARGES . '/' . $chargeId, null, $headers);
         }
 
 
         public function captureCharge($chargeId, $payload, $headers)
         {
-            return $this->apiCall('POST', self::API_VERSION . '/charges/' . $chargeId  . '/capture', $payload, $headers);
+            return $this->apiCall('POST', self::API_VERSION . self::CHARGES . '/' . $chargeId  . '/capture', $payload, $headers);
         }
 
 
         public function cancelCharge($chargeId, $payload, $headers = null)
         {
-            return $this->apiCall('DELETE', self::API_VERSION . '/charges/' . $chargeId  . '/cancel', $payload, $headers);
+            return $this->apiCall('DELETE', self::API_VERSION . self::CHARGES . '/' . $chargeId  . '/cancel', $payload, $headers);
         }
 
 
@@ -788,5 +800,24 @@
         public function claimMerchantAccount($merchantAccountId, $payload, $headers = null)
         {
             return $this->apiCall('POST', self::API_VERSION . self::ACCOUNT_MANAGEMENT . '/' . $merchantAccountId . self::CLAIM, $payload, $headers);
+        }
+
+        // ----------------------------------- Dispute APIs -----------------------------------
+
+        public function createDispute($payload, $headers) {
+            return $this->apiCall('POST', self::API_VERSION . self::DISPUTES, $payload, $headers);
+        }
+
+        public function updateDispute($disputeId, $payload, $headers = null) {
+            return $this->apiCall('PATCH', self::API_VERSION . self::DISPUTES . '/' . $disputeId, $payload, $headers);
+        }
+
+        public function contestDispute($disputeId, $payload, $headers = null) {
+            return $this->apiCall('POST', self::API_VERSION . self::DISPUTES . '/' . $disputeId . self::CONTEST, $payload, $headers);
+        }
+
+        // ----------------------------------- File APIs -----------------------------------
+        public function uploadFile($payload, $headers) {
+            return $this->apiCall('POST', self::API_VERSION . self::FILES, $payload, $headers);
         }
     }
