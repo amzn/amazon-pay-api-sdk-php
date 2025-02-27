@@ -800,7 +800,7 @@ An alternate way to do Step 2 would be to use PHP arrays and programmatically ge
 
     try {
         $client = new Amazon\Pay\API\Client($amazonpay_config);
-        $result = $client->updateCharge('S03-5774364-0521956-C066348', $payload, $headers);
+        $result = $client->updateCharge('S03-XXXXXX-XXXXXX-XXXXXX', $payload, $headers);
         
         if ($result['status'] === 200) {
             // success
