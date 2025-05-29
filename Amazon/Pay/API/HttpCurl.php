@@ -125,7 +125,7 @@ class HttpCurl
 
                     $statusCode = $response['status'];
                     $shouldRetry = false;
-                    $retryCodes = array(408, 429, 500, 502, 503, 504);
+                    $retryCodes = array(408, 425,429, 500, 502, 503, 504);
                     if (in_array($statusCode, $retryCodes)) {
                         $this->pauseOnRetry(++$retries);
                         $shouldRetry = $retries <= self::MAX_ERROR_RETRY;

@@ -1,3 +1,9 @@
+### Version 2.7.0 - May 2025
+* Introducing `GetDispute` API which is used to retrieve details of a chargeback dispute associated with a specific order
+* Introducing retry logic for HTTP Code 425
+* Renamed `PaymentServiceProviderClientInterface` to `DisputeClientInterface` to align with current Amazon Pay support for both PSP (Payment Service Provider) and 1PP (Standard) merchants in the Disputes and Files APIs.
+* **Note:** If you are directly using `PaymentServiceProviderClientInterface`, please update your implementation to use `DisputeClientInterface`. The previous interface has been removed as of this release.
+
 ### Version 2.6.8 - February 2025
 * Introducing new v2 Dispute APIs for PSPs (Payment Service Provider). Buyers can create a dispute by filing an Amazon Pay A-to-z Guarantee claim or by filing a chargeback with their bank.
 * The `createDispute` API is used to notify Amazon of a newly created chargeback dispute by a buyer on a transaction processed by the PSP (Payment Service Provider), ensuring the dispute is properly accounted for in the Amazon Pay systems.

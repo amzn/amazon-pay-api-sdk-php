@@ -10,11 +10,11 @@
     require_once 'HttpCurl.php';
     require_once 'MerchantOnboardingClientInterface.php';
     require_once 'AccountManagementClientInterface.php';
-    require_once 'PaymentServiceProviderClientInterface.php';
+    require_once 'DisputeClientInterface.php';
  
-    class Client implements ClientInterface, ReportingClientInterface, MerchantOnboardingClientInterface, AccountManagementClientInterface, PaymentServiceProviderClientInterface
+    class Client implements ClientInterface, ReportingClientInterface, MerchantOnboardingClientInterface, AccountManagementClientInterface, DisputeClientInterface
     {
-        const SDK_VERSION = '2.6.8';
+        const SDK_VERSION = '2.7.0';
         const SDK_LANGUAGE = 'PHP';
         const HASH_ALGORITHM = 'sha256';
         const API_VERSION = 'v2';
@@ -806,6 +806,10 @@
 
         public function createDispute($payload, $headers) {
             return $this->apiCall('POST', self::API_VERSION . self::DISPUTES, $payload, $headers);
+        }
+
+        public function getDispute($disputeId, $headers = null){
+            return $this->apiCall('GET', self::API_VERSION . self::DISPUTES . '/' . $disputeId, null, $headers);
         }
 
         public function updateDispute($disputeId, $payload, $headers = null) {

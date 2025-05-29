@@ -191,6 +191,7 @@ Please contact your Amazon Pay Account Manager before using the In-Store API cal
 
 ### Amazon Checkout v2 Dispute APIs
 * **createDispute**($payload, $headers) &#8594; POST to $version/disputes
+* **getDispute**($disputeId, $headers = null) &#8594; GET to $version/disputes/$disputeId
 * **updateDispute**($disputeId, $payload, $headers = null) &#8594; PATCH to $version/disputes/$disputeId
 * **contestDispute**($disputeId, $payload, $headers = null) &#8594; POST to $version/disputes/$disputeId/contest
 
@@ -1815,6 +1816,40 @@ For more details related to Account Management APIs, please refer to this [Integ
     try {
         $client = new Amazon\Pay\API\Client($amazonpay_config);
         $result = $client->createDispute($payload, $headers);
+        
+        if ($result['status'] === 200) {
+            // success
+            $response = $result['response'];
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+    } catch (\Exception $e) {
+        echo $e . "\n";
+        http_response_code(500);
+    }
+?>
+```
+
+### Amazon Checkout v2 Dispute APIs - Get Dispute API
+
+```php
+<?php
+    include 'vendor/autoload.php';
+    require_once 'Amazon/Pay/API/Client.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'JP',
+        'algorithm'      => 'AMZN-PAY-RSASSA-PSS-V2'
+    );
+    
+    $disputeId = 'DIPSUTE_ID'; 
+    
+    try {
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->getDispute($disputeId);
         
         if ($result['status'] === 200) {
             // success
