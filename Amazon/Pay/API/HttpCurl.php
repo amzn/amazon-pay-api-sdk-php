@@ -82,12 +82,12 @@ class HttpCurl
         $response = curl_exec($ch);
         if ($response === false) {
             $error_msg = "Unable to send request, underlying exception of " . curl_error($ch);
-            curl_close($ch);
+            unset($ch);
             throw new \Exception($error_msg);
         } else {
             $this->curlResponseInfo = curl_getinfo($ch);
         }
-        curl_close($ch);
+        unset($ch);
         return $response;
     }
 
