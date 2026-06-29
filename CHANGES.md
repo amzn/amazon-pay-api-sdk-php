@@ -1,3 +1,6 @@
+### Version 2.7.1 - June 2025
+* Replaced deprecated `curl_close()` calls with `unset()` for PHP 8.5 compatibility
+
 ### Version 2.7.0 - May 2025
 * Introducing `GetDispute` API which is used to retrieve details of a chargeback dispute associated with a specific order
 * Introducing retry logic for HTTP Code 425
