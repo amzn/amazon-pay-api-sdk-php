@@ -14,7 +14,7 @@
  
     class Client implements ClientInterface, ReportingClientInterface, MerchantOnboardingClientInterface, AccountManagementClientInterface, DisputeClientInterface
     {
-        const SDK_VERSION = '2.7.0';
+        const SDK_VERSION = '2.7.2';
         const SDK_LANGUAGE = 'PHP';
         const HASH_ALGORITHM = 'sha256';
         const API_VERSION = 'v2';
@@ -25,6 +25,7 @@
         const DISPUTES = '/disputes';
         const CONTEST = '/contest';
         const FILES = '/files';
+        const STORES = '/stores';
         
         private $config = array();
 
@@ -800,6 +801,18 @@
         public function claimMerchantAccount($merchantAccountId, $payload, $headers = null)
         {
             return $this->apiCall('POST', self::API_VERSION . self::ACCOUNT_MANAGEMENT . '/' . $merchantAccountId . self::CLAIM, $payload, $headers);
+        }
+
+        // ----------------------------------- Store Management APIs -----------------------------------
+
+        public function createStore($merchantAccountId, $payload, $headers)
+        {
+            return $this->apiCall('POST', self::API_VERSION . self::ACCOUNT_MANAGEMENT . '/' . $merchantAccountId . self::STORES, $payload, $headers);
+        }
+
+        public function updateStore($merchantAccountId, $storeId, $payload, $headers)
+        {
+            return $this->apiCall('PATCH', self::API_VERSION . self::ACCOUNT_MANAGEMENT . '/' . $merchantAccountId . self::STORES . '/' . $storeId, $payload, $headers);
         }
 
         // ----------------------------------- Dispute APIs -----------------------------------

@@ -1,3 +1,7 @@
+### Version 2.7.2 - July 2025
+* Introducing `CreateStore` and `UpdateStore` APIs for managing stores within merchant accounts
+* Note: These APIs are restricted to allowlisted Solution Providers only
+
 ### Version 2.7.1 - June 2025
 * Replaced deprecated `curl_close()` calls with `unset()` for PHP 8.5 compatibility
 

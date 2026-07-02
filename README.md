@@ -188,6 +188,8 @@ Please contact your Amazon Pay Account Manager before using the In-Store API cal
 * **createMerchantAccount**($payload, $headers) &#8594; POST to "$version/merchantAccounts"
 * **updateMerchantAccount**($merchantAccountId, $payload, $headers) &#8594; PATCH to "$version/merchantAccounts/$merchantAccountId"
 * **claimMerchantAccount**($merchantAccountId, $payload, $headers) &#8594; POST to "$version/merchantAccounts/$merchantAccountId/claim"
+* **createStore**($merchantAccountId, $payload, $headers) &#8594; POST to "$version/merchantAccounts/$merchantAccountId/stores"
+* **updateStore**($merchantAccountId, $storeId, $payload, $headers) &#8594; PATCH to "$version/merchantAccounts/$merchantAccountId/stores/$storeId"
 
 ### Amazon Checkout v2 Dispute APIs
 * **createDispute**($payload, $headers) &#8594; POST to $version/disputes
@@ -1996,6 +1998,106 @@ For more details related to Account Management APIs, please refer to this [Integ
         if ($result['status'] === 200) {
             // success
             $response = $result['response'];
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+    } catch (\Exception $e) {
+        echo $e . "\n";
+        http_response_code(500);
+    }
+?>
+```
+
+
+## Amazon Checkout v2 Account Management APIs - Create Store API
+
+Note: This API is restricted to allowlisted Solution Providers only.
+
+```php
+<?php
+    include 'vendor/autoload.php';
+    require_once 'Amazon/Pay/API/Client.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'JP',
+        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2'
+    );
+
+    $payload = array(
+        'allowedOriginDomains' => array('https://example.com', 'https://www.example.com'),
+        'allowedRedirectURLs' => array('https://example.com/return', 'https://example.com/cancel'),
+        'storeName' => 'My Store',
+        'privacyPolicyUrl' => 'https://example.com/privacy',
+        'merchantLogoUrl' => 'https://example.com/logo.png'
+    );
+
+    $headers = array(
+        'x-amz-pay-authToken' => 'YOUR_AUTH_TOKEN'
+    );
+
+    $merchantAccountId = 'MERCHANT_ACCOUNT_ID';
+
+    try {
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->createStore($merchantAccountId, $payload, $headers);
+
+        if ($result['status'] === 201) {
+            // success
+            $response = json_decode($result['response'], true);
+            echo 'Store created: ' . $response['storeId'] . "\n";
+        } else {
+            // check the error
+            echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";
+        }
+    } catch (\Exception $e) {
+        echo $e . "\n";
+        http_response_code(500);
+    }
+?>
+```
+
+## Amazon Checkout v2 Account Management APIs - Update Store API
+
+Note: This API is restricted to allowlisted Solution Providers only.
+
+```php
+<?php
+    include 'vendor/autoload.php';
+    require_once 'Amazon/Pay/API/Client.php';
+
+    $amazonpay_config = array(
+        'public_key_id' => 'YOUR_PUBLIC_KEY_ID',
+        'private_key'   => 'keys/private.pem',
+        'region'        => 'JP',
+        'algorithm'     => 'AMZN-PAY-RSASSA-PSS-V2'
+    );
+
+    $payload = array(
+        'allowedOriginDomains' => array('https://updated-example.com', 'https://www.updated-example.com'),
+        'allowedRedirectURLs' => array('https://updated-example.com/return', 'https://updated-example.com/cancel'),
+        'storeName' => 'Updated Store Name',
+        'privacyPolicyUrl' => 'https://updated-example.com/privacy',
+        'merchantLogoUrl' => 'https://updated-example.com/new-logo.png'
+    );
+
+    $headers = array(
+        'x-amz-pay-authToken' => 'YOUR_AUTH_TOKEN'
+    );
+
+    $merchantAccountId = 'MERCHANT_ACCOUNT_ID';
+    $storeId = 'STORE_ID';
+
+    try {
+        $client = new Amazon\Pay\API\Client($amazonpay_config);
+        $result = $client->updateStore($merchantAccountId, $storeId, $payload, $headers);
+
+        if ($result['status'] === 200) {
+            // success
+            $response = json_decode($result['response'], true);
+            echo 'Store updated: ' . $response['storeId'] . "\n";
         } else {
             // check the error
             echo 'status=' . $result['status'] . '; response=' . $result['response'] . "\n";

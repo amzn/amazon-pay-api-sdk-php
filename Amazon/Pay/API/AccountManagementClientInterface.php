@@ -36,4 +36,33 @@ interface AccountManagementClientInterface
          * @optional headers - [indexed array of string key-value pairs]
          */
     public function claimMerchantAccount($merchantAccountId, $payload, $headers = null);
+
+    // ----------------------------------- Store Management APIs -----------------------------------
+
+    /* Amazon Checkout v2 - Create Store
+         *
+         * Creates a new store for a merchant account. Allows Solution Providers to configure
+         * store-specific settings like allowed domains, redirect URLs, store name, and privacy policy URL
+         * on behalf of their merchants.
+         * Note: This API is restricted to allowlisted Solution Providers only.
+         *
+         * @param merchantAccountId - [String] - Merchant Account ID
+         * @param payload - [String in JSON format] or [array]
+         * @param headers - [array] - requires x-amz-pay-authToken header
+         */
+    public function createStore($merchantAccountId, $payload, $headers);
+
+    /* Amazon Checkout v2 - Update Store
+         *
+         * Updates an existing store's configuration for a merchant account. Allows Solution Providers to
+         * modify store-specific settings like allowed domains, redirect URLs, store name, and privacy policy URL
+         * on behalf of their merchants.
+         * Note: This API is restricted to allowlisted Solution Providers only.
+         *
+         * @param merchantAccountId - [String] - Merchant Account ID
+         * @param storeId - [String] - Store ID
+         * @param payload - [String in JSON format] or [array]
+         * @param headers - [array] - requires x-amz-pay-authToken header
+         */
+    public function updateStore($merchantAccountId, $storeId, $payload, $headers);
 }

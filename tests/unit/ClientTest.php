@@ -130,7 +130,6 @@
                 $client = new Client($this->configArray[$i]);
                 $class = new \ReflectionClass($client);
                 $method = $class->getMethod('getCanonicalURI');
-                $method->setAccessible(true);
 
                 $uriTrue = "/sandbox/in-store/v999/charge";
 
@@ -144,7 +143,6 @@
                 $client = new Client($this->configArray[$i]);
                 $class = new \ReflectionClass($client);
                 $method = $class->getMethod('sortCanonicalArray');
-                $method->setAccessible(true);
 
                 $canonicalArrayTrue = array(
                     'amount'                => '100.50',
@@ -170,7 +168,6 @@
                 $client = new Client($this->configArray[$i]);
                 $class = new \ReflectionClass($client);
                 $method = $class->getMethod('createCanonicalQuery');
-                $method->setAccessible(true);
 
                 $canonicalQueryTrue = ("amount=100.50" .
                     "&chargePermissionId=P03-0772540-6944847" .
@@ -194,7 +191,6 @@
                 $client = new Client($this->configArray[$i]);
                 $class = new \ReflectionClass($client);
                 $method = $class->getMethod('getCanonicalHeaders');
-                $method->setAccessible(true);
 
                 $canonicalHeadersTrue = array(
                     'accept'            => 'application/json',
@@ -212,7 +208,6 @@
                 $client = new Client($this->configArray[$i]);
                 $class = new \ReflectionClass($client);
                 $method = $class->getMethod('getCanonicalHeadersNames');
-                $method->setAccessible(true);
 
                 $canonicalHeadersNamesTrue = 'accept;content-type;x-amz-pay-host';
             
@@ -226,7 +221,6 @@
                 $client = new Client($this->configArray[$i]);
                 $class = new \ReflectionClass($client);
                 $method = $class->getMethod('gethost');
-                $method->setAccessible(true);
 
                 $hostTrue = 'pay-api.amazon.jp';
                 $this->assertEquals($hostTrue, $method->invoke($client, $this->uri));
@@ -381,7 +375,6 @@
         private static function getMethod($methodName) {
             $reflectionClass = new \ReflectionClass('Amazon\Pay\API\Client');
             $reflectionMethod = $reflectionClass->getMethod($methodName);
-            $reflectionMethod->setAccessible(true);
             return $reflectionMethod;
         }
 
