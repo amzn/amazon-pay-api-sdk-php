@@ -50,7 +50,14 @@
                 }
 
                 //V2 Algorithm accepts only 'eu', 'na' and 'jp' as region
-                $config['region'] =  $this->regionMappings[strtolower($config['region'])];
+                if (empty($config['region']) || !is_string($config['region'])) {
+                    throw new \Exception("Expecting config['region'] to be one of: " . implode(', ', array_keys($this->regionMappings)));
+                }
+                $region = strtolower($config['region']);
+                if (!isset($this->regionMappings[$region])) {
+                    throw new \Exception('Invalid region \'' . $config['region'] . '\'; expected one of: ' . implode(', ', array_keys($this->regionMappings)));
+                }
+                $config['region'] = $this->regionMappings[$region];
                 $this->config = $config;
 
                 if (!empty($config['sandbox'])) {
