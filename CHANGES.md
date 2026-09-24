@@ -1,3 +1,7 @@
+### Version 2.8.0 - September 2025
+* Narrowed the `phpseclib/phpseclib` dependency constraint to `^3.0.34` to prevent installation of phpseclib v4, which renames the `phpseclib3` namespace and breaks signature generation (#57)
+* Added validation of the `region` value in the `Client` constructor, throwing a descriptive exception for missing, empty, or unsupported regions instead of failing later at the first API call (#56)
+
 ### Version 2.7.2 - July 2025
 * Introducing `CreateStore` and `UpdateStore` APIs for managing stores within merchant accounts
 * Note: These APIs are restricted to allowlisted Solution Providers only

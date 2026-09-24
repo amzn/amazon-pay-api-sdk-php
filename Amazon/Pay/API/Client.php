@@ -14,7 +14,7 @@
  
     class Client implements ClientInterface, ReportingClientInterface, MerchantOnboardingClientInterface, AccountManagementClientInterface, DisputeClientInterface
     {
-        const SDK_VERSION = '2.7.2';
+        const SDK_VERSION = '2.8.0';
         const SDK_LANGUAGE = 'PHP';
         const HASH_ALGORITHM = 'sha256';
         const API_VERSION = 'v2';
