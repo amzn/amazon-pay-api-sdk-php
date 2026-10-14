@@ -14,7 +14,7 @@
  
     class Client implements ClientInterface, ReportingClientInterface, MerchantOnboardingClientInterface, AccountManagementClientInterface, DisputeClientInterface
     {
-        const SDK_VERSION = '2.8.0';
+        const SDK_VERSION = '2.8.1';
         const SDK_LANGUAGE = 'PHP';
         const HASH_ALGORITHM = 'sha256';
         const API_VERSION = 'v2';
@@ -50,14 +50,12 @@
                 }
 
                 //V2 Algorithm accepts only 'eu', 'na' and 'jp' as region
-                if (empty($config['region']) || !is_string($config['region'])) {
-                    throw new \Exception("Expecting config['region'] to be one of: " . implode(', ', array_keys($this->regionMappings)));
+                if (!empty($config['region'])) {
+                    if (!is_string($config['region']) || !isset($this->regionMappings[strtolower($config['region'])])) {
+                        throw new \Exception('Invalid region \'' . (is_string($config['region']) ? $config['region'] : gettype($config['region'])) . '\'; expected one of: ' . implode(', ', array_keys($this->regionMappings)));
+                    }
+                    $config['region'] = $this->regionMappings[strtolower($config['region'])];
                 }
-                $region = strtolower($config['region']);
-                if (!isset($this->regionMappings[$region])) {
-                    throw new \Exception('Invalid region \'' . $config['region'] . '\'; expected one of: ' . implode(', ', array_keys($this->regionMappings)));
-                }
-                $config['region'] = $this->regionMappings[$region];
                 $this->config = $config;
 
                 if (!empty($config['sandbox'])) {
@@ -101,7 +99,7 @@
         private function createServiceUrl()
         {
             // Comprehensive SDK use requires 'sandbox' and 'region' parameters to be specified in the config array
-            // These attributes are not needed for Signature-only SDK usage
+            // Not needed for generateButtonSignature() / testPrivateKeyIntegrity(); getPostSignedHeaders() still requires region
 
             $modePath = strtolower($this->config['sandbox']) ? 'sandbox' : 'live';
 
@@ -371,6 +369,10 @@
 
         public function getPostSignedHeaders($http_request_method, $request_uri, $request_parameters, $request_payload, $other_presigned_headers = null)
         {
+            if (empty($this->config['region'])) {
+                throw new \Exception("config['region'] is a required parameter and is not set");
+            }
+
             $preSignedHeaders = array();
             $preSignedHeaders['accept'] = 'application/json';
             $preSignedHeaders['content-type'] = 'application/json';
@@ -486,16 +488,32 @@
 
 
         private function setupRSA() {
-            $key_spec = $this->config['private_key'];
+            $key_spec = isset($this->config['private_key']) ? $this->config['private_key'] : null;
             $salt_length = $this->getAlgorithm() === 'AMZN-PAY-RSASSA-PSS' ? 20 : 32;
-            if ((strpos($key_spec, 'BEGIN RSA PRIVATE KEY') === false) && (strpos($key_spec, 'BEGIN PRIVATE KEY') === false)) {
-                $contents = file_get_contents($key_spec);
+            $load_error = 'Unable to load the private key file. Check that config[\'private_key\'] is a valid file path or PEM-encoded key.';
+            if (!is_string($key_spec) || $key_spec === '') {
+                throw new \Exception($load_error);
+            }
+            // Strip a leading UTF-8 BOM first, then trim whitespace, so a key with stray
+            // formatting is still recognized as key content and still parses as PEM.
+            $normalized_key_spec = trim(ltrim($key_spec, "\xEF\xBB\xBF"));
+            $armor_offset = strpos($normalized_key_spec, '-----BEGIN');
+            if ($armor_offset !== false) {
+                $rsa = RSA::loadPrivateKey(substr($normalized_key_spec, $armor_offset))->withSaltLength($salt_length);
+            } else {
+                // Suppress warnings so file_get_contents() never leaks the raw value.
+                // (error_clear_last() is PHP 7+; the handler alone is enough to keep
+                // error_get_last() clean, and avoiding it keeps this PHP 5.6-compatible.)
+                set_error_handler(function () { return true; });
+                try {
+                    $contents = file_get_contents($key_spec);
+                } finally {
+                    restore_error_handler();
+                }
                 if ($contents === false) {
-                    throw new \Exception('Unable to load file: ' . $key_spec);
+                    throw new \Exception($load_error);
                 }
                 $rsa = RSA::loadPrivateKey($contents)->withSaltLength($salt_length);
-            } else {
-                $rsa = RSA::loadPrivateKey($key_spec)->withSaltLength($salt_length);
             }
             return $rsa;
         }

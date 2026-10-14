@@ -12,6 +12,48 @@
         const INTEGRATOR_ID = 'AXXXXXXXXXXXXX';
         const INTEGRATOR_VERSION = '5.4.3';
         const PLATFORM_VERSION = '2.0.7';
+        // Test keys live in a temp path only; the committed fixtures stay placeholders.
+        private static $privateKeyPath;
+        private static $publicKeyPath;
+
+        // Generates a throwaway RSA keypair into untracked temp files for this test run.
+        public static function setUpBeforeClass(): void
+        {
+            $resource = openssl_pkey_new(array(
+                'private_key_bits' => 2048,
+                'private_key_type' => OPENSSL_KEYTYPE_RSA,
+            ));
+            if ($resource === false) {
+                self::fail('Unable to generate test RSA keypair: ' . openssl_error_string());
+            }
+            if (!openssl_pkey_export($resource, $privateKeyPem)) {
+                self::fail('Unable to export generated test private key: ' . openssl_error_string());
+            }
+            $details = openssl_pkey_get_details($resource);
+            if ($details === false || !isset($details['key'])) {
+                self::fail('Unable to read generated test public key: ' . openssl_error_string());
+            }
+            $publicKeyPem = $details['key'];
+
+            self::$privateKeyPath = tempnam(sys_get_temp_dir(), 'ap-sdk-test-key-');
+            self::$publicKeyPath = tempnam(sys_get_temp_dir(), 'ap-sdk-test-pub-');
+            if (self::$privateKeyPath === false || self::$publicKeyPath === false
+                || file_put_contents(self::$privateKeyPath, $privateKeyPem) === false
+                || file_put_contents(self::$publicKeyPath, $publicKeyPem) === false) {
+                self::fail('Unable to write generated test key fixtures to a temp path');
+            }
+        }
+
+        // Deletes the generated temp keypair; nothing tracked was ever touched.
+        public static function tearDownAfterClass(): void
+        {
+            if (self::$privateKeyPath !== null) {
+                @unlink(self::$privateKeyPath);
+            }
+            if (self::$publicKeyPath !== null) {
+                @unlink(self::$publicKeyPath);
+            }
+        }
 
         private $configArray = array(
             //config 
@@ -80,6 +122,15 @@
         private $expectedUnitedStatesURL = 'https://pay-api.amazon.com/';
         private $expectedEuropeURL = 'https://pay-api.amazon.eu/';
         private $expectedJapanURL = 'https://pay-api.amazon.jp/';
+
+        // Point every configArray entry at the generated temp keypair; the literal
+        // path above only documents shape, it is never read.
+        protected function setUp(): void
+        {
+            foreach ($this->configArray as &$config) {
+                $config['private_key'] = self::$privateKeyPath;
+            }
+        }
 
         public function testConfigArray()
         {
@@ -272,7 +323,7 @@
         }
 
         private function verifySignature($plaintext, $signature) {
-            $rsa = RSA::loadPrivateKey(file_get_contents('tests/unit/unit_test_key_private.txt'))->withSaltLength(substr( $plaintext, 0, 22 ) === 'AMZN-PAY-RSASSA-PSS-V2' ? 32 : 20 );
+            $rsa = RSA::loadPrivateKey(file_get_contents(self::$privateKeyPath))->withSaltLength(substr( $plaintext, 0, 22 ) === 'AMZN-PAY-RSASSA-PSS-V2' ? 32 : 20 );
             return $rsa->getPublicKey()->verify($plaintext, base64_decode($signature));
         }
 
@@ -421,6 +472,176 @@
             $this->assertEquals($actualURL, $expectedURL);
 
 
+        }
+
+        // Region is optional for pure signature usage (generateButtonSignature);
+        // construction must succeed without it.
+        public function testRegionOmittedSucceedsForSignatureOnlyUsage() {
+            $client = new Client(array(
+                'public_key_id' => $this->configArray[0]['public_key_id'],
+                'private_key'   => $this->configArray[0]['private_key'],
+            ));
+
+            $signature = $client->generateButtonSignature('{"storeId":"amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}');
+            $this->assertNotNull($signature);
+        }
+
+        // getPostSignedHeaders() signs an X-Amz-Pay-Region header, so unlike
+        // generateButtonSignature() it does need a region; omitting it must throw
+        // the same way createServiceUrl() does, not silently sign an empty header.
+        public function testRegionOmittedThrowsOnGetPostSignedHeaders() {
+            $client = new Client(array(
+                'public_key_id' => $this->configArray[0]['public_key_id'],
+                'private_key'   => $this->configArray[0]['private_key'],
+            ));
+
+            $this->expectException(\Exception::class);
+            $this->expectExceptionMessage("config['region'] is a required parameter and is not set");
+            $client->getPostSignedHeaders('POST', 'https://pay-api.amazon.com/sandbox/v2/charges', array(), '{}');
+        }
+
+        // Region omitted at construction must still be enforced once it is actually
+        // needed, i.e. when createServiceUrl() is reached for comprehensive API usage.
+        public function testRegionOmittedThrowsOnCreateServiceUrl() {
+            $client = new Client(array(
+                'public_key_id' => $this->configArray[0]['public_key_id'],
+                'private_key'   => $this->configArray[0]['private_key'],
+            ));
+
+            $reflectionMethod = self::getMethod('createServiceUrl');
+
+            $this->expectException(\Exception::class);
+            $this->expectExceptionMessage("config['region'] is a required parameter and is not set");
+            $reflectionMethod->invoke($client);
+        }
+
+        // An empty-string region is treated the same as an omitted region: allowed at
+        // construction, enforced later at point of use.
+        public function testRegionEmptyStringTreatedAsOmitted() {
+            $client = new Client(array(
+                'public_key_id' => $this->configArray[0]['public_key_id'],
+                'private_key'   => $this->configArray[0]['private_key'],
+                'region'        => '',
+            ));
+
+            $reflectionMethod = self::getMethod('createServiceUrl');
+
+            $this->expectException(\Exception::class);
+            $this->expectExceptionMessage("config['region'] is a required parameter and is not set");
+            $reflectionMethod->invoke($client);
+        }
+
+        // A region that IS supplied but unrecognized must fail fast, at construction,
+        // not later at the first API call.
+        public function testRegionInvalidThrowsAtConstruction() {
+            $this->expectException(\Exception::class);
+            $this->expectExceptionMessage("Invalid region 'xx'; expected one of:");
+
+            new Client(array(
+                'public_key_id' => $this->configArray[0]['public_key_id'],
+                'private_key'   => $this->configArray[0]['private_key'],
+                'region'        => 'xx',
+            ));
+        }
+
+        // A non-string region must fail fast at construction with a readable message,
+        // and must not trigger a PHP "Array to string conversion" warning.
+        public function testRegionNonStringThrowsAtConstruction() {
+            $this->expectException(\Exception::class);
+            $this->expectExceptionMessage("Invalid region 'array'; expected one of:");
+
+            new Client(array(
+                'public_key_id' => $this->configArray[0]['public_key_id'],
+                'private_key'   => $this->configArray[0]['private_key'],
+                'region'        => array('us'),
+            ));
+        }
+
+        // Region values are matched case-insensitively, same as before 2.8.0.
+        public function testRegionMixedCaseAccepted() {
+            $reflectionMethod = self::getMethod('createServiceUrl');
+
+            $client = new Client(array(
+                'public_key_id' => $this->configArray[0]['public_key_id'],
+                'private_key'   => $this->configArray[0]['private_key'],
+                'sandbox'       => true,
+                'region'        => 'Us',
+            ));
+            $this->assertEquals($this->expectedUnitedStatesURL . 'sandbox/', $reflectionMethod->invoke($client));
+
+            $client = new Client(array(
+                'public_key_id' => $this->configArray[0]['public_key_id'],
+                'private_key'   => $this->configArray[0]['private_key'],
+                'sandbox'       => true,
+                'region'        => 'EU',
+            ));
+            $this->assertEquals($this->expectedEuropeURL . 'sandbox/', $reflectionMethod->invoke($client));
+        }
+
+        // setupRSA() must never include caller-supplied key input in its exception message.
+        public function testSetupRSAThrowsFixedMessageWithoutLeakingInput() {
+            $secretLookingValue = 'SOME-SECRET-LOOKING-VALUE-NOT-A-REAL-PATH-OR-KEY';
+            $client = new Client(array(
+                'public_key_id' => $this->configArray[0]['public_key_id'],
+                'private_key'   => $secretLookingValue,
+            ));
+
+            try {
+                $client->generateButtonSignature('{}');
+                $this->fail('Expected an exception for an unreadable private_key value');
+            } catch (\Exception $e) {
+                $this->assertStringNotContainsString($secretLookingValue, $e->getMessage());
+                $this->assertEquals(
+                    "Unable to load the private key file. Check that config['private_key'] is a valid file path or PEM-encoded key.",
+                    $e->getMessage()
+                );
+            }
+        }
+
+        // A PEM key prefixed with a UTF-8 BOM must still be recognized as key content,
+        // not misread as a file path.
+        public function testSetupRSAAcceptsBomPrefixedKey() {
+            $pem = file_get_contents(self::$privateKeyPath);
+            $client = new Client(array(
+                'public_key_id' => $this->configArray[0]['public_key_id'],
+                'private_key'   => "\xEF\xBB\xBF" . $pem,
+            ));
+
+            $signature = $client->generateButtonSignature('{"storeId":"amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}');
+            $this->assertNotNull($signature);
+        }
+
+        // A PEM key with leading whitespace/newlines must still be recognized as key
+        // content, not misread as a file path.
+        public function testSetupRSAAcceptsWhitespacePrefixedKey() {
+            $pem = file_get_contents(self::$privateKeyPath);
+            $client = new Client(array(
+                'public_key_id' => $this->configArray[0]['public_key_id'],
+                'private_key'   => "\n\n  " . $pem,
+            ));
+
+            $signature = $client->generateButtonSignature('{"storeId":"amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}');
+            $this->assertNotNull($signature);
+        }
+
+        // Any "-----BEGIN" armor (not just the two previously hardcoded strings) must
+        // be routed to the key parser rather than treated as a file path.
+        public function testSetupRSARecognizesEncryptedPrivateKeyArmorAsContent() {
+            $client = new Client(array(
+                'public_key_id' => $this->configArray[0]['public_key_id'],
+                'private_key'   => "-----BEGIN ENCRYPTED PRIVATE KEY-----\nnot-a-real-key\n-----END ENCRYPTED PRIVATE KEY-----",
+            ));
+
+            try {
+                $client->generateButtonSignature('{}');
+                $this->fail('Expected an exception for an unparseable encrypted key');
+            } catch (\Exception $e) {
+                // Must come from the key parser, not from the file-not-found path.
+                $this->assertNotEquals(
+                    "Unable to load the private key file. Check that config['private_key'] is a valid file path or PEM-encoded key.",
+                    $e->getMessage()
+                );
+            }
         }
 
     }
